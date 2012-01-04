@@ -1,3 +1,4 @@
-(defproject dieter "1.0.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :dependencies [[org.clojure/clojure "1.2.1"]])
+(defproject dieter "0.0.1-SNAPSHOT"
+  :description "(inc sprockets)"
+  :dependencies [[ring "1.0.1"]]
+  :dev-dependencies [[org.clojure/clojure "1.3.0"]])

@@ -1,4 +1,7 @@
 (defproject dieter "0.0.1-SNAPSHOT"
   :description "(inc sprockets)"
-  :dependencies [[ring "1.0.1"]]
-  :dev-dependencies [[org.clojure/clojure "1.3.0"]])
+  :repositories {"local" ~(str (.toURI (java.io.File. "maven_repository")))}
+  :dependencies [[ring "1.0.1"]
+                 [yuicompressor "2.4.7"]
+                 [org.clojure/clojure "1.3.0"]])
+

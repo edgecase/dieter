@@ -1,54 +1,96 @@
 (ns dieter.core
   (:require [clojure.string :as cstr]
-            [clojure.java.io :as io]
-            [ring.middleware.file :as ring])
-  (:import [java.io File FileReader PushbackReader])
+            [clojure.java.io :as io])
+  (:import [java.io File FileReader PushbackReader]))
+
+(comment "TODO:"
+  "if a manifest entry starts with ./ it is relative"
+  "manifest entries ending with / require tree"
+  "manifest entries can specify part of the path"
+  "manifest entries without ./ have a lookup order. (current-dir asset-root vendor-root jar-root?)"
+  "files should only ever be included once, the first time they are encountered"
+  "js minification"
+  "css minification"
+  "handlebars preprocessor"
+  "sass preprocessor"
+  "include comment about original source of file"
+  "conditionally compress"
   )
+
+(def ^:dynamic *settings*
+  {:compress false
+   :require-paths ["resources/assets"]})
 
 (defn load-manifest [file]
   (let [stream (PushbackReader. (FileReader. file))]
     (read stream)))
 
-(defn locate-file [filename basedir]
-  (first (filter #(= (.getName %) filename) (file-seq basedir))))
-
-(defn package-asset [manifest-file]
-  (let [manifest (load-manifest manifest-file)]
-    (cstr/join "\n"
-               (map (fn [file]
-                      (slurp (locate-file file (.getParentFile manifest-file))))
-                    manifest))))
-
 (defn cache-path [requested-file]
-  (cstr/replace-first requested-file "/assets/" "/asset-cache/assets/"))
+  (cstr/replace-first requested-file "/assets/" "/resources/asset-cache/assets/"))
 
-(defn log [& messages]
-  (locking System/out (apply println messages)))
-
-(defn write-to-cache [src requested-path]
+(defn write-to-cache [string requested-path]
   (let [dest (io/file (cache-path requested-path))]
     (io/make-parents dest)
-    (if (string? src)
-      (spit dest src)
-      (io/copy (io/file requested-path) dest))))
+    (println (str "writing to " dest))
+    (spit dest string)))
 
-(defn find-file [src-path]
-  (let [asset (io/file src-path)]
-    (if (and (.exists asset) (.isFile asset))
-      asset
-      nil)))
+(defn search-dir [relative-file start-dir]
+  (if (.getParent relative-file)
+    (io/file start-dir (.getParent relative-file))
+    start-dir))
 
-(defn find-manifest [src-path]
-  (find-file (str src-path ".dieter")))
+(defn matches-filename? [filename file]
+  (re-matches (re-pattern (str "^" filename ".*$")) (.getName file)))
+
+(defn find-in-dir [filename dir]
+  (first (filter (partial matches-filename? filename) (.listFiles dir))))
+
+(defn find-in-tree [filename dir]
+  (first (filter (partial matches-filename? filename) (file-seq dir))))
+
+(defn find-file [partial-path start-dir]
+  (println "find file " partial-path start-dir)
+  (let [relative-file (io/file partial-path)
+        filename (.getName relative-file)
+        search-dir (search-dir relative-file start-dir)]
+    (if (re-matches #"^\./.*" partial-path)
+      (find-in-dir filename search-dir)
+      (find-in-tree filename search-dir))))
+
+(defn file-ext [file]
+  (last (cstr/split (.getName file) #"\.")))
+
+
+(defn preprocess-contents [file]
+  (slurp file))
+
+(declare preprocess-file)
+
+(defn preprocess-dieter [manifest-file]
+  (let [ manifest (load-manifest manifest-file)]
+    (map (fn [filename]
+           (preprocess-file (find-file filename (.getParentFile manifest-file))))
+         manifest)))
+
+(def file-type-dispatch
+  {"js" preprocess-contents
+   "dieter" preprocess-dieter
+   "css" preprocess-contents
+   })
+
+(defn preprocess-file [file]
+  (println "preprocessing file " file )
+  (let [type (file-ext file)
+        preprocessor (file-type-dispatch type)]
+    (preprocessor file)))
 
 (defn find-and-cache-assets [requested-path]
-  (if-let [file (find-file requested-path)]
-    (write-to-cache file requested-path)
-    (if-let [file (find-manifest requested-path)]
-      (write-to-cache (package-asset file) requested-path))))
+  (if-let [file (find-file requested-path (io/file "resources/"))]
+    (write-to-cache (preprocess-file file) requested-path)))
 
-(defn asset-pipeline [app & options]
-  (fn [req]
-    (if (re-matches #"^/assets/.*" (:uri req))
-      (find-and-cache-assets (str "./resources" (:uri req))))
-    (app req)))
+(defn asset-pipeline [app & [options]]
+  (binding [*settings* (merge *settings* options)]
+    (fn [req]
+      (if (re-matches #"^/assets/.*" (:uri req))
+        (find-and-cache-assets (str "." (:uri req))))
+      (app req))))

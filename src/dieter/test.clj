@@ -13,17 +13,17 @@
      :headers {"Content-Type" "text/html"}}))
 
 (def app
+  ; This goes bottom to top, fyi
   (-> wrap-file-info
-      (wrap-file "resources/asset-cache")
-      (asset-pipeline)
+      (four-oh-four)
+      ;(wrap-file "resources/asset-cache")
+      (asset-pipeline {:compress true :require-paths ["whatevs/js"]})
       (wrap-file "resources/asset-cache")
       wrap-stacktrace
-      (four-oh-four)
       ))
 
 (defn start []
   (run-jetty app {:port 8080}))
 
 (defn -main [& m]
-  (println "wtf")
   (start))

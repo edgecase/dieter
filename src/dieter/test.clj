@@ -16,8 +16,8 @@
   ; This goes bottom to top, fyi
   (-> wrap-file-info
       (four-oh-four)
-      ;(wrap-file "resources/asset-cache")
-      (asset-pipeline {:compress true :require-paths ["whatevs/js"]})
+      (wrap-file "resources/asset-cache")
+      (asset-pipeline {:compress true})
       (wrap-file "resources/asset-cache")
       wrap-stacktrace
       ))

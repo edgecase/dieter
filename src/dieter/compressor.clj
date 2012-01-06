@@ -1,6 +1,7 @@
 (ns dieter.compressor
   (:require [clojure.java.io :as io])
-  (:import [com.yahoo.platform.yui.compressor JavaScriptCompressor CssCompressor]
+  (:import [java.io StringReader StringWriter]
+           [com.yahoo.platform.yui.compressor JavaScriptCompressor CssCompressor]
            [org.mozilla.javascript ErrorReporter]))
 
 (def reporter (reify ErrorReporter
@@ -12,28 +13,22 @@
 ; decision to compress as js or css made?
 ;(defn compress [input-file output-file level])
 
-(defn compress-js [input-file output-file level]
-  (with-open [infile (io/reader input-file)
-              outfile (io/writer output-file)]
-    (let [compressor (JavaScriptCompressor. infile reporter)]
-      (case level
-        :debug (.compress compressor outfile
-                          -1    ; line break
-                          false ; munge (shorten var names)
-                          true  ; verbose
-                          true  ; preserve all semicolons
-                          true  ; disable optimizations
-                          )
-        :minified (.compress compressor outfile
-                             -1    ; line break
-                             true  ; munge (shorten var names)
-                             false ; verbose
-                             false ; preserve all semicolons
-                             false ; disable optimizations
-                             )))))
+(defn compress-js [text]
+  (let [input (StringReader. text)
+        output (StringWriter.)
+        compressor (JavaScriptCompressor. input reporter)]
+    (.compress compressor output
+               -1    ; line break
+               true  ; munge (shorten var names)
+               false ; verbose
+               false ; preserve all semicolons
+               false ; disable optimizations
+               )
+    (str output)))
 
-(defn compress-css [input-file output-file]
-  (with-open [infile (io/reader input-file)
-              outfile (io/writer output-file)]
-    (let [compressor (CssCompressor. infile)]
-      (.compress compressor outfile -1)))))
+(defn compress-css [text]
+  (with-open [input (StringReader. text)
+              output (StringWriter.)]
+    (let [compressor (CssCompressor. input)]
+      (.compress compressor output -1)
+      (str output))))

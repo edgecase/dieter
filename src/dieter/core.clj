@@ -1,12 +1,11 @@
 (ns dieter.core
   (:require [clojure.string :as cstr]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [dieter.compressor :as compressor])
   (:import [java.io File FileReader PushbackReader]))
 
 (comment "TODO:"
-  "if a manifest entry starts with ./ it is relative"
   "manifest entries ending with / require tree"
-  "manifest entries can specify part of the path"
   "manifest entries without ./ have a lookup order. (current-dir asset-root vendor-root jar-root?)"
   "files should only ever be included once, the first time they are encountered"
   "js minification"
@@ -17,9 +16,8 @@
   "conditionally compress"
   )
 
-(def ^:dynamic *settings*
-  {:compress false
-   :require-paths ["resources/assets"]})
+(def ^:dynamic *settings* {:compress false
+                           :require-paths ["resources/assets"]})
 
 (defn load-manifest [file]
   (let [stream (PushbackReader. (FileReader. file))]
@@ -31,7 +29,6 @@
 (defn write-to-cache [string requested-path]
   (let [dest (io/file (cache-path requested-path))]
     (io/make-parents dest)
-    (println (str "writing to " dest))
     (spit dest string)))
 
 (defn search-dir [relative-file start-dir]
@@ -49,7 +46,6 @@
   (first (filter (partial matches-filename? filename) (file-seq dir))))
 
 (defn find-file [partial-path start-dir]
-  (println "find file " partial-path start-dir)
   (let [relative-file (io/file partial-path)
         filename (.getName relative-file)
         search-dir (search-dir relative-file start-dir)]
@@ -58,19 +54,17 @@
       (find-in-tree filename search-dir))))
 
 (defn file-ext [file]
-  (last (cstr/split (.getName file) #"\.")))
-
+  (last (cstr/split (str file) #"\.")))
 
 (defn preprocess-contents [file]
-  (slurp file))
+  (str "// Source: " file "\n" (slurp file)))
 
 (declare preprocess-file)
 
 (defn preprocess-dieter [manifest-file]
-  (let [ manifest (load-manifest manifest-file)]
-    (map (fn [filename]
-           (preprocess-file (find-file filename (.getParentFile manifest-file))))
-         manifest)))
+  (cstr/join "\n" (map (fn [filename]
+                    (preprocess-file (find-file filename (.getParentFile manifest-file))))
+                  (load-manifest manifest-file))))
 
 (def file-type-dispatch
   {"js" preprocess-contents
@@ -79,18 +73,28 @@
    })
 
 (defn preprocess-file [file]
-  (println "preprocessing file " file )
   (let [type (file-ext file)
         preprocessor (file-type-dispatch type)]
     (preprocessor file)))
 
+(defn compress [text requested-path]
+  (if (:compress *settings*)
+    (case (file-ext requested-path)
+      "js" (compressor/compress-js text)
+      "css" (compressor/compress-css text)
+      text)
+    text))
+
 (defn find-and-cache-assets [requested-path]
   (if-let [file (find-file requested-path (io/file "resources/"))]
-    (write-to-cache (preprocess-file file) requested-path)))
+    (-> file
+        (preprocess-file)
+        (compress requested-path)
+        (write-to-cache requested-path))))
 
 (defn asset-pipeline [app & [options]]
-  (binding [*settings* (merge *settings* options)]
-    (fn [req]
+  (fn [req]
+    (binding [*settings* (merge *settings* options)]
       (if (re-matches #"^/assets/.*" (:uri req))
         (find-and-cache-assets (str "." (:uri req))))
       (app req))))

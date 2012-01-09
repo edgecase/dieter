@@ -2,6 +2,7 @@
   (:require [clojure.string :as cstr]
             [clojure.java.io :as io]
             [dieter.compressor :as compressor])
+  (:use [dieter.handlebars :only [precompile-handlebars]])
   (:import [java.io File FileReader PushbackReader]))
 
 (comment "TODO:"
@@ -70,6 +71,7 @@
   {"js" preprocess-contents
    "dieter" preprocess-dieter
    "css" preprocess-contents
+   "hbs" preprocess-handlebars
    })
 
 (defn preprocess-file [file]

@@ -13,11 +13,15 @@
     results))
 
 (defn quote-js [s]
-  (str "\\x22" (cstr/replace s "\"" "\\x22") "\\x22"))
+  (str "\"" (cstr/replace (cstr/replace s "\n" "") "\"" "\\x22") "\""))
 
 (defn preprocess-handlebars [file]
   (let [hbs (slurp file)
         js  (str "Handlebars.precompile(" (quote-js hbs) ");")
-        compiled (eval-with-handlebars js)]
+        compiled (eval-with-handlebars js)
+        ]
     (println js)
-    (str "DIETER_HANDLEBARS_TEMPLATES[" (.getName file) "]=" compiled)))
+    (println compiled)
+    (str "DIETER_HANDLEBARS_TEMPLATES[" (.getName file) "]=" compiled)
+    )
+    )

@@ -18,7 +18,8 @@
       (four-oh-four)
       (wrap-file "resources/asset-cache")
       (asset-pipeline {:compress true})
-      (wrap-file "resources/asset-cache")
+      ;; (wrap-file "resources/asset-cache")
+      (wrap-file "resources/public")
       wrap-stacktrace
       ))
 

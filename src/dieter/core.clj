@@ -2,7 +2,7 @@
   (:require [clojure.string :as cstr]
             [clojure.java.io :as io]
             [dieter.compressor :as compressor])
-  (:use [dieter.handlebars :only [precompile-handlebars]])
+  (:use [dieter.handlebars :only [preprocess-handlebars]])
   (:import [java.io File FileReader PushbackReader]))
 
 (comment "TODO:"
@@ -58,7 +58,7 @@
   (last (cstr/split (str file) #"\.")))
 
 (defn preprocess-contents [file]
-  (str "// Source: " file "\n" (slurp file)))
+  (str "/* Source: " file " */\n" (slurp file)))
 
 (declare preprocess-file)
 
@@ -76,7 +76,7 @@
 
 (defn preprocess-file [file]
   (let [type (file-ext file)
-        preprocessor (file-type-dispatch type)]
+        preprocessor (get file-type-dispatch type preprocess-contents)]
     (preprocessor file)))
 
 (defn compress [text requested-path]

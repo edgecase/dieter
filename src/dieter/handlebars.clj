@@ -1,27 +1,26 @@
 (ns dieter.handlebars
   (:require [clojure.java.io :as io]
-            [clojure.string :as cstr])
+            [clojure.string :as cstr]
+            [clojure.reflect])
   (:import [org.mozilla.javascript Context Scriptable]))
 
-(defn eval-with-handlebars [string]
+(defn compile-handlebars [string]
   (let [hbs-file (io/reader "vendor/handlebars-1.0.0.beta.6.js")
         context (Context/enter)
         scope (.initStandardObjects context)
-        handlebars (.evaluateReader context scope hbs-file "handlebars" 1 nil)
-        results (.evaluateString context scope string "template" 1 nil)]
+        _ (.evaluateReader context scope hbs-file "handlebars" 1 nil)
+        handlebars (.get scope "Handlebars" scope)
+        compiler   (.get handlebars "precompile" scope)
+        results (.call compiler context scope nil (into-array [string]))]
     (Context/exit)
     results))
 
-(defn quote-js [s]
-  (str "\"" (cstr/replace (cstr/replace s "\n" "") "\"" "\\x22") "\""))
+(defn filename-without-ext [file]
+  (cstr/replace (.getName file) #"\..*$" ""))
 
 (defn preprocess-handlebars [file]
   (let [hbs (slurp file)
-        js  (str "Handlebars.precompile(" (quote-js hbs) ");")
-        compiled (eval-with-handlebars js)
-        ]
-    (println js)
-    (println compiled)
-    (str "DIETER_HANDLEBARS_TEMPLATES[" (.getName file) "]=" compiled)
-    )
-    )
+        compiled (compile-handlebars hbs)]
+    (str "var DIETER_HANDLEBARS_TEMPLATES = DIETER_HANDLEBARS_TEMPLATES || {};\n"
+     "DIETER_HANDLEBARS_TEMPLATES[\"" (filename-without-ext file) "\"]=" compiled)))
+

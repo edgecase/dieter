@@ -2,7 +2,7 @@
   (:require [clojure.string :as cstr]
             [clojure.java.io :as io]
             [dieter.compressor :as compressor])
-  (:use [dieter.handlebars :only [preprocess-handlebars]])
+  (:use [dieter.preprocessors.handlebars :only [preprocess-handlebars]])
   (:import [java.io File FileReader PushbackReader]))
 
 (comment "TODO:"

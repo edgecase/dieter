@@ -5,3 +5,5 @@ pom.xml
 .lein-failures
 .lein-deps-sum
 /resources
+/.sass-cache/8cb277bb3f5e879c6dcd82f8cce46e31d649ad4c/test.sassc
+/.rvmrc

@@ -15,10 +15,7 @@
                            :cache-root "resources/asset-cache"
                            :cache-mode :development})
 
-(def cached-paths
-  "if cacheing is enabled, stores references to the name of the cached file.
-the cached file has an md5 of the file appended to the file name."
-  (atom {}))
+(def cached-paths (atom {}))
 
 (defn asset-root []
   (:asset-root *settings*))

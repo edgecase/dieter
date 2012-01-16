@@ -1,7 +1,6 @@
 (ns dieter.preprocessors.handlebars
   (:require [clojure.java.io :as io]
-            [clojure.string :as cstr]
-            [clojure.reflect])
+            [clojure.string :as cstr])
   (:use dieter.preprocessors.rhino))
 
 (defn compile-handlebars [string]

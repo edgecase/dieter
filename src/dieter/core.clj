@@ -15,6 +15,7 @@
   "sass preprocessor"
   "include comment about original source of file"
   "conditionally compress"
+  "turn off verbose google logging"
   )
 
 (def ^:dynamic *settings* {:compress false

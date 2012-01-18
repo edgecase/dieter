@@ -1,0 +1,1 @@
+var file = "/app.js"

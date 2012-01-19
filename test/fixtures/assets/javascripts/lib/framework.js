@@ -1,1 +1,1 @@
-var file = "framework.js";
+var file = "/lib/framework.js";

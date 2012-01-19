@@ -34,9 +34,10 @@
     (spit dest string)))
 
 (defn search-dir [relative-file start-dir]
-  (if (.getParent relative-file)
-    (io/file start-dir (.getParent relative-file))
-    start-dir))
+  (cond
+   (.isDirectory relative-file) (io/file start-dir relative-file)
+   (.getParent relative-file) (io/file start-dir (.getParent relative-file))
+   :else start-dir))
 
 (defn matches-filename? [filename file]
   (re-matches (re-pattern (str "^" filename ".*$")) (.getName file)))
@@ -63,10 +64,22 @@
 
 (declare preprocess-file)
 
+(defn manifest-to-str [filename manifest-file]
+  (if (re-matches #".*/$" filename)
+    (let [_ (println (io/file filename))
+          _ (println (.getParentFile manifest-file))
+          fileseq (file-seq (search-dir (io/file filename) (.getParentFile manifest-file)))
+          files (filter #(not (.isDirectory %)) fileseq)]
+      (println files)
+      (cstr/join "\n" (map preprocess-file files)))
+    (let [file (find-file filename (.getParentFile manifest-file))]
+      (if (nil? file)
+        (str "/* ERROR: File not found: \"" filename "\" */")
+        (preprocess-file file)))))
+
 (defn preprocess-dieter [manifest-file]
-  (cstr/join "\n" (map (fn [filename]
-                    (preprocess-file (find-file filename (.getParentFile manifest-file))))
-                  (load-manifest manifest-file))))
+  (cstr/join "\n" (map #(manifest-to-str % manifest-file)
+                       (load-manifest manifest-file))))
 
 (def file-type-dispatch
   {"js" preprocess-contents

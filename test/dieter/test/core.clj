@@ -36,7 +36,7 @@
 
 (deftest test-preprocess-dieter
   (let [manifest (io/file "test/fixtures/assets/javascripts/manifest.js.dieter")
-        text (preprocess-dieter manifest)]
+        text (preprocess-file manifest)]
 
     (testing "relative file paths"
       (is (has-text? text "var file = \"/app.js\"")))

@@ -6,17 +6,9 @@
   (:import [java.io File FileReader PushbackReader]))
 
 (comment "TODO:"
-  "manifest entries ending with / require tree"
-  "manifest entries without ./ have a lookup order. (current-dir asset-root vendor-root jar-root?)"
-  "files should only ever be included once, the first time they are encountered"
-  "js minification"
-  "css minification"
-  "handlebars preprocessor"
-  "sass preprocessor"
-  "include comment about original source of file"
-  "conditionally compress"
-  "turn off verbose google logging"
-  )
+         "less preprocessor"
+         "cache busting"
+         )
 
 (def ^:dynamic *settings* {:compress false
                            :require-paths ["resources/assets"]})
@@ -59,20 +51,6 @@
 (defn file-ext [file]
   (last (cstr/split (str file) #"\.")))
 
-(defn preprocess-contents [file]
-  (str "/* Source: " file " */\n" (slurp file)))
-
-(declare preprocess-file)
-
-(defn manifest-to-str [filename manifest-file]
-  (if (re-matches #".*/$" filename)
-    (let [fileseq (file-seq (search-dir (io/file filename) (.getParentFile manifest-file)))
-          files (filter #(not (.isDirectory %)) fileseq)]
-      (cstr/join "\n" (map preprocess-file files)))
-    (let [file (find-file filename (.getParentFile manifest-file))]
-      (if (nil? file)
-        (preprocess-file file)))))
-
 (defn distinct-by
   "Returns a lazy sequence of the elements of coll with duplicates removed.
 Duplicates are found by comparing the results of the comparison fn."
@@ -98,20 +76,16 @@ Duplicates are found by comparing the results of the comparison fn."
                                  (find-file filename (.getParentFile manifest-file))))
                              (load-manifest manifest-file))))))
 
-(defn preprocess-dieter [manifest-file]
-  (cstr/join "\n" (map preprocess-file (manifest-files manifest-file))))
+(defmulti preprocess-file (fn [file] (keyword (file-ext file))))
 
-(def file-type-dispatch
-  {"js" preprocess-contents
-   "dieter" preprocess-dieter
-   "css" preprocess-contents
-   "hbs" preprocess-handlebars
-   })
+(defmethod preprocess-file :default [file]
+  (str "/* Source: " file " */\n" (slurp file)))
 
-(defn preprocess-file [file]
-  (let [type (file-ext file)
-        preprocessor (get file-type-dispatch type preprocess-contents)]
-    (preprocessor file)))
+(defmethod preprocess-file :dieter [file]
+  (cstr/join "\n" (map preprocess-file (manifest-files file))))
+
+(defmethod preprocess-file :hbs [file]
+  (preprocess-handlebars file))
 
 (defn compress [text requested-path]
   (if (:compress *settings*)

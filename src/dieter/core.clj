@@ -66,20 +66,40 @@
 
 (defn manifest-to-str [filename manifest-file]
   (if (re-matches #".*/$" filename)
-    (let [_ (println (io/file filename))
-          _ (println (.getParentFile manifest-file))
-          fileseq (file-seq (search-dir (io/file filename) (.getParentFile manifest-file)))
+    (let [fileseq (file-seq (search-dir (io/file filename) (.getParentFile manifest-file)))
           files (filter #(not (.isDirectory %)) fileseq)]
-      (println files)
       (cstr/join "\n" (map preprocess-file files)))
     (let [file (find-file filename (.getParentFile manifest-file))]
       (if (nil? file)
-        (str "/* ERROR: File not found: \"" filename "\" */")
         (preprocess-file file)))))
 
+(defn distinct-by
+  "Returns a lazy sequence of the elements of coll with duplicates removed.
+Duplicates are found by comparing the results of the comparison fn."
+  [fun coll]
+    (let [step (fn step [xs seen]
+                   (lazy-seq
+                    ((fn [[f :as xs] seen]
+                      (when-let [s (seq xs)]
+                        (if (contains? seen (fun f))
+                          (recur (rest s) seen)
+                          (cons f (step (rest s) (conj seen (fun f)))))))
+                     xs seen)))]
+      (step coll #{})))
+
+(defn manifest-files [manifest-file]
+  (distinct-by #(.getCanonicalPath %)
+               (filter #(and (not (nil? %))
+                             (not (.isDirectory %)))
+                       (flatten
+                        (map (fn [filename]
+                               (if (re-matches #".*/$" filename)
+                                 (file-seq (search-dir (io/file filename) (.getParentFile manifest-file)))
+                                 (find-file filename (.getParentFile manifest-file))))
+                             (load-manifest manifest-file))))))
+
 (defn preprocess-dieter [manifest-file]
-  (cstr/join "\n" (map #(manifest-to-str % manifest-file)
-                       (load-manifest manifest-file))))
+  (cstr/join "\n" (map preprocess-file (manifest-files manifest-file))))
 
 (def file-type-dispatch
   {"js" preprocess-contents

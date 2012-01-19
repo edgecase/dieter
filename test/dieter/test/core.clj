@@ -3,8 +3,11 @@
   (:use clojure.test)
   (:require [clojure.java.io :as io]))
 
-(defn has-text? [text expected]
-  (not= -1 (.indexOf text expected)))
+(defn has-text?
+  ([text expected]
+     (not= -1 (.indexOf text expected)))
+  ([text expected times]
+     (= times (count (re-seq (re-pattern expected) text)))))
 
 (deftest test-cache-path
   (is (= "/resources/asset-cache/assets/foo.js"
@@ -47,10 +50,8 @@
     (testing "trailing slash requires all files under that directory"
       (is (has-text? text "var file = \"/lib/dquery.js\"")))
 
-    (testing "multiple requires are included only once, the first occurrence")
-
-    (testing "files in manifest that do not exist"
-      (is (has-text? text "/* ERROR: File not found: \"dontfindme.js\" */")))))
+    (testing "multiple requires are included only once, the first occurrence"
+      (is (has-text? text "var file = \"/lib/framework.js\"" 1)))))
 
 (deftest test-compress
   (let [uncompressed-js " var foo = 'bar'; "

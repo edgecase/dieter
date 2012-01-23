@@ -11,8 +11,8 @@
      (= times (count (re-seq (re-pattern expected) text)))))
 
 (deftest test-cached-file-path
-  (is (= "/resources/asset-cache/assets/foo.js"
-         (cached-file-path "/assets/foo.js"))))
+  (is (= "/resources/asset-cache/assets/foo-d259b08a2dfaf8bf776cbadbe85442d3.js"
+         (cached-file-path "/assets/foo.js" "content string"))))
 
 (deftest test-find-file
   (let [dir (io/file "test/fixtures/assets/javascripts/")]
@@ -78,3 +78,53 @@
          (search-dir (io/file "./app.js") (io/file "test/fixtures/assets/javascripts/"))))
   (is (= (io/file "test/fixtures/assets/javascripts/./lib/")
          (search-dir (io/file "./lib/") (io/file "test/fixtures/assets/javascripts/")))))
+
+(deftest test-md5
+  (is (= "acbd18db4cc2f85cedef654fccc4a4d8" (md5 "foo")))
+  (testing "leading zeros should be included"
+    (is (= "02b97f7bc37b2b68fc847fcc3fc1c156" (md5 "foooo")))))
+
+(deftest test-add-md5
+  (is (= "/assets/foo-acbd18db4cc2f85cedef654fccc4a4d8.js" (add-md5 "/assets/foo.js" "foo")))
+  (is (= "/assets/foo.js-acbd18db4cc2f85cedef654fccc4a4d8.txt" (add-md5 "/assets/foo.js.txt" "foo")))
+  (is (= "/assets/foo-acbd18db4cc2f85cedef654fccc4a4d8" (add-md5 "/assets/foo" "foo"))))
+
+(deftest test-link-to-asset
+  (testing "development mode"
+    (let [opts {:cache-mode :development :asset-root "test/fixtures" :cache-root "test/fixtures/asset-cache"}]
+      (is (= "/assets/javascripts/app.js" (link-to-asset "javascripts/app.js" opts)))
+      (is (nil? (link-to-asset "javascripts/dontfindme.js" opts)))))
+  (testing "production mode"
+    (let [opts {:cache-mode :production :asset-root "test/fixtures" :cache-root "test/fixtures/asset-cache"}]
+      (testing "no previous file generated"
+        (is (re-matches #"/assets/javascripts/app-[\da-f]{32}\.js" (link-to-asset "javascripts/app.js" opts))))
+      (testing "file previously generated"
+        (swap! cached-paths assoc "/assets/javascripts/app.js" "/assets/javascripts/app-12345678901234567890af1234567890.js")
+        (is  (link-to-asset "javascripts/app.js" opts))))))
+
+(deftest test-write-to-cache
+  (binding [*settings* (merge *settings* {:asset-root "test/fixtures", :cache-root "test/fixtures/asset-cache"})]
+    (let [content "var aString = 'of javascript';"
+          request-path "./assets/javascripts/awesomesauce.js"
+          cache-path (write-to-cache content request-path)]
+      (is (= "./test/fixtures/asset-cache/assets/javascripts/awesomesauce-8be397d9c4a3c4ad35f33963fedad96b.js" (str cache-path)))
+      (is (= content (slurp cache-path)))
+      (.delete cache-path))))
+
+(deftest test-uncachfy-filename
+  (is (= "/assets/foo.js" (uncachify-filename "/assets/foo-acbd18db4cc2f85cedef654fccc4a4d8.js")))
+  (is (= "/assets/foo.js.txt" (uncachify-filename "/assets/foo.js-acbd18db4cc2f85cedef654fccc4a4d8.txt")))
+  (is (= "/assets/foo.js" (uncachify-filename "/assets/foo.js"))))
+
+(deftest test-make-relative-to-cache
+  (is (= "/assets/javascripts/awesomesauce-8be397d9c4a3c4ad35f33963fedad96b.js"
+         (make-relative-to-cache "./resources/asset-cache/assets/javascripts/awesomesauce-8be397d9c4a3c4ad35f33963fedad96b.js"))))
+
+(deftest test-asset-pipeline
+  (let [app (fn [req] (:uri req))
+        options {:asset-root "test/fixtures", :cache-root "test/fixtures/asset-cache"}
+        pipeline (asset-pipeline app options)]
+    (reset! cached-paths {})
+    (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js" (pipeline {:uri "/assets/javascripts/app.js"})))
+    (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js" (get @cached-paths "/assets/javascripts/app.js")))
+    (.delete (io/file "test/fixtures/asset-cache/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js"))))

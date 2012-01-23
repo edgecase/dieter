@@ -3,16 +3,22 @@
             [clojure.java.io :as io]
             [dieter.compressor :as compressor])
   (:use [dieter.preprocessors.handlebars :only [preprocess-handlebars]])
-  (:import [java.io File FileReader PushbackReader]))
+  (:import [java.io File FileReader PushbackReader]
+           [java.security MessageDigest]))
 
 (comment "TODO:"
          "less preprocessor"
-         "cache busting"
          )
 
 (def ^:dynamic *settings* {:compress false
                            :asset-root "resources"
-                           :cache-root "resources/asset-cache"})
+                           :cache-root "resources/asset-cache"
+                           :cache-mode :development})
+
+(def cached-paths
+  "if cacheing is enabled, stores references to the name of the cached file.
+the cached file has an md5 of the file appended to the file name."
+  (atom {}))
 
 (defn asset-root []
   (:asset-root *settings*))
@@ -30,17 +36,26 @@ namely a vector or list of file names or directory paths."
   (let [stream (PushbackReader. (FileReader. file))]
     (read stream)))
 
+(defn md5 [string]
+  (let [digest (.digest (MessageDigest/getInstance "MD5") (.getBytes string "UTF-8"))]
+    (format "%032x" (BigInteger. 1 digest))))
+
+(defn add-md5 [path content]
+  (if-let [[match fname ext] (re-matches #"^(.+)\.(\w+)$" path)]
+    (str fname "-" (md5 content) "." ext)
+    (str path "-" (md5 content))))
+
 (defn cached-file-path
   "given the request path, generate the filename of where the file
 will be cached. Cache is rooted at cache-root/assets/ so that
 static file middleware can be rooted at cache-root"
-  [requested-file]
-  (cstr/replace-first requested-file "/assets/" (str "/" (cache-root) "/assets/")))
+  [requested-file content]
+  (add-md5 (cstr/replace-first requested-file "/assets/" (str "/" (cache-root) "/assets/")) content))
 
-(defn write-to-cache [string requested-path]
-  (let [dest (io/file (cached-file-path requested-path))]
+(defn write-to-cache [content requested-path]
+  (let [dest (io/file (cached-file-path requested-path content))]
     (io/make-parents dest)
-    (spit dest string)
+    (spit dest content)
     dest))
 
 (defn search-dir
@@ -132,20 +147,37 @@ This is the main extension point for adding more precompilation types."
         (compress requested-path)
         (write-to-cache requested-path))))
 
+(defn uncachify-filename [filename]
+  (if-let [[match fname hash ext] (re-matches #"^(.+)-([\da-f]{32})\.(\w+)$" filename)]
+    (str fname "." ext)
+    filename))
+
+(defn make-relative-to-cache [path]
+  (cstr/replace-first path (re-pattern (str ".*" (cache-root))) ""))
+
 (defn asset-pipeline [app & [options]]
-  "return a middleware function "
   (fn [req]
     (binding [*settings* (merge *settings* options)]
-      (if (re-matches #"^/assets/.*" (:uri req))
-        (find-and-cache-asset (str "." (:uri req))))
-      (app req))))
+      (let [path (:uri req)]
+        (if (re-matches #"^/assets/.*" path)
+          (if-let [cached (find-and-cache-asset (str "." path))]
+            (let [new-path (make-relative-to-cache (str cached))]
+              (swap! cached-paths assoc path new-path)
+              (app (assoc req :uri new-path)))
+            (app req))
+          (app req))))))
 
-(defn link-to-asset
-  "Return a link to the desired asset.
-Has the side-effect of generating and cacheing the asset"
-  ([path] (link-to-asset path {}))
+(defmulti cache-busting-path
+  "in production mode, append a md5 of the file contents to the file path"
+  :cache-mode)
 
-  ([path options]
-     (binding [*settings* (merge *settings* options)]
-       (let [file (find-and-cache-asset (str "./assets/" path))]
-         (cstr/replace (.getCanonicalPath file) (absolute-asset-root) "")))))
+(defmethod cache-busting-path :development [settings path] path)
+
+(defmethod cache-busting-path :production [settings path]
+  (or (get @cached-paths path)
+      (add-md5 path (str (java.util.Date.)))))
+
+(defn link-to-asset [path options]
+  (binding [*settings* (merge *settings* options)]
+    (if-let [file (find-file (str "./assets/" path) (asset-root))]
+      (cache-busting-path *settings* (cstr/replace (.getCanonicalPath file) (absolute-asset-root) "")))))

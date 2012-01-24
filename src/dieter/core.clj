@@ -2,13 +2,13 @@
   (:require [clojure.string :as cstr]
             [clojure.java.io :as io]
             [dieter.compressor :as compressor])
-  (:use [dieter.preprocessors.handlebars :only [preprocess-handlebars]])
+  (:use [dieter.preprocessors.handlebars :only [preprocess-handlebars]]
+        [dieter.preprocessors.less :only [preprocess-less]])
   (:import [java.io File FileReader PushbackReader]
            [java.security MessageDigest]))
 
 (comment "TODO:"
-         "less preprocessor"
-         )
+         "logging")
 
 (def ^:dynamic *settings* {:compress false
                            :asset-root "resources"
@@ -127,6 +127,9 @@ This is the main extension point for adding more precompilation types."
 
 (defmethod preprocess-file :hbs [file]
   (preprocess-handlebars file))
+
+(defmethod preprocess-file :less [file]
+  (preprocess-less file))
 
 (defn compress [text requested-path]
   "optionally compress (minify) text, according to settings and file type"

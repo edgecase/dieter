@@ -1,12 +1,13 @@
 (ns dieter.settings
   (:require [clojure.java.io :as io]))
 
-(def ^:dynamic *settings* {:compress false
-                           :asset-root "resources"
-                           :cache-root "resources/asset-cache"
-                           :cache-mode :development})
+(defonce ^:dynamic *settings*
+  {:compress   false
+   :asset-root "resources"
+   :cache-root "resources/asset-cache"
+   :cache-mode :development})
 
-(def cached-paths (atom {}))
+(defonce cached-paths (atom {}))
 
 (defn asset-root []
   (:asset-root *settings*))

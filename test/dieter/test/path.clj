@@ -25,6 +25,16 @@
         (is (re-matches #".*test/fixtures/assets/javascripts/lib/framework.js$" (.getPath file)))
         (is (.exists file))))
 
+    (testing "no file extension"
+      (let [file (find-file "framework" dir)]
+        (is (re-matches #".*test/fixtures/assets/javascripts/lib/framework.js$" (.getPath file)))
+        (is (.exists file))))
+
+    (testing "different file extension"
+      (let [file (find-file "basic.css" (io/file "test/fixtures/assets/stylesheets/"))]
+        (is (re-matches #".*test/fixtures/assets/stylesheets/basic.less$" (.getPath file)))
+        (is (.exists file))))
+
     (testing "no file exists"
       (is (nil? (find-file "dontfindme.txt" dir))))))
 

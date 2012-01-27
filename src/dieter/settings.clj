@@ -5,7 +5,8 @@
   {:compress   false
    :asset-root "resources"
    :cache-root "resources/asset-cache"
-   :cache-mode :development})
+   :cache-mode :development
+   :hbs-mode :handlebars})
 
 (defonce cached-paths (atom {}))
 

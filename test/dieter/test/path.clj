@@ -38,13 +38,21 @@
     (testing "no file exists"
       (is (nil? (find-file "dontfindme.txt" dir))))))
 
+(defn file= [f1 f2]
+  (= (.getCanonicalPath (io/file f1))
+     (.getCanonicalPath (io/file f2))))
+
 (deftest test-search-dir
-  (is (= (io/file "test/fixtures/assets/javascripts/lib/")
-         (search-dir (io/file "lib/framework.js") (io/file "test/fixtures/assets/javascripts/"))))
-  (is (= (io/file "test/fixtures/assets/javascripts/.")
-         (search-dir (io/file "./app.js") (io/file "test/fixtures/assets/javascripts/"))))
-  (is (= (io/file "test/fixtures/assets/javascripts/./lib/")
-         (search-dir (io/file "./lib/") (io/file "test/fixtures/assets/javascripts/")))))
+  (is (file= "test/fixtures/assets/javascripts/lib/"
+             (search-dir "lib/framework.js" (io/file "test/fixtures/assets/javascripts/"))))
+  (is (file= "test/fixtures/assets/javascripts/"
+             (search-dir "./app.js" (io/file "test/fixtures/assets/javascripts/"))))
+  (is (file= "test/fixtures/assets/javascripts/lib/"
+             (search-dir "./lib/" (io/file "test/fixtures/assets/javascripts/"))))
+  (is (file= "test/fixtures/assets/javascripts/lib/"
+             (search-dir "./lib/" (.getParentFile (io/file "test/fixtures/assets/javascripts/manifest.js.dieter")))))
+  (is (file= "test/fixtures/assets/javascripts/models/"
+             (search-dir "./models/" (.getParentFile (io/file "test/fixtures/assets/javascripts/manifest.js.dieter"))))))
 
 (deftest test-md5
   (is (= "acbd18db4cc2f85cedef654fccc4a4d8" (md5 "foo")))

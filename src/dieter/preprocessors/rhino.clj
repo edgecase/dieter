@@ -10,7 +10,7 @@
 
 (defn load-vendor [filename context scope]
   (.evaluateReader context scope
-                   (io/reader (str "vendor/" filename))
+                   (io/reader (io/resource (str "vendor/" filename)))
                    filename 1 nil))
 
 (defn js-keys [obj]

@@ -40,6 +40,6 @@ We should probably consider outputting some kind of warning in that case."
                        (flatten
                         (map (fn [filename]
                                (if (re-matches #".*/$" filename)
-                                 (file-seq (search-dir (io/file filename) (.getParentFile manifest-file)))
+                                 (file-seq (search-dir filename (.getParentFile manifest-file)))
                                  (find-file filename (.getParentFile manifest-file))))
                              (load-manifest manifest-file))))))

@@ -3,4 +3,5 @@
   "framework.js"
   "dontfindme.js"
   "./lib/"
+  "./models/"
 ]

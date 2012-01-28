@@ -5,10 +5,12 @@
   (:use
    dieter.settings
    [dieter.manifest :only [manifest-files]]
-   [dieter.path :only [find-file cached-file-path file-ext make-relative-to-cache cache-busting-path]]
+   [dieter.path :only [find-file cached-file-path file-ext make-relative-to-cache
+                       uncachify-filename cache-busting-path]]
    [dieter.compressor :only [compress-js compress-css]]
    [dieter.preprocessors.handlebars :only [preprocess-handlebars]]
-   [dieter.preprocessors.less :only [preprocess-less]]))
+   [dieter.preprocessors.less :only [preprocess-less]]
+   [ring.middleware.file :only [wrap-file]]))
 
 (comment "TODO:"
          "logging")
@@ -52,10 +54,10 @@ This is the main extension point for adding more precompilation types."
         (compress requested-path)
         (write-to-cache requested-path))))
 
-(defn asset-pipeline [app & [options]]
+(defn asset-builder [app & [options]]
   (fn [req]
     (binding [*settings* (merge *settings* options)]
-      (let [path (:uri req)]
+      (let [path (uncachify-filename (:uri req))]
         (if (re-matches #"^/assets/.*" path)
           (if-let [cached (find-and-cache-asset (str "." path))]
             (let [new-path (make-relative-to-cache (str cached))]
@@ -64,7 +66,20 @@ This is the main extension point for adding more precompilation types."
             (app req))
           (app req))))))
 
-(defn link-to-asset [path options]
+(defn asset-pipeline [app & [options]]
+  (binding [*settings* (merge *settings* options)]
+    (if (= :production (:cache-mode *settings*))
+      (-> app
+          (wrap-file (cache-root))
+          (asset-builder options)
+          (wrap-file (cache-root)))
+      (-> app
+          (wrap-file (cache-root))
+          (asset-builder options)))))
+
+(defn link-to-asset [path & [options]]
+  "path should start under assets and not contain a leading slash
+ex. (link-to-asset \"javascripts/app.js\") => \"/assets/javascripts/app-12345678901234567890123456789012.js\""
   (binding [*settings* (merge *settings* options)]
     (if-let [file (find-file (str "./assets/" path) (asset-root))]
-      (cache-busting-path *settings* (cstr/replace (.getCanonicalPath file) (absolute-asset-root) "")))))
+      (cache-busting-path *settings* (str "/assets/" path)))))

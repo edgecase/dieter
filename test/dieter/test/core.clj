@@ -2,14 +2,8 @@
   (:use dieter.core)
   (:use dieter.settings)
   (:use clojure.test)
+  (:use dieter.test.helpers)
   (:require [clojure.java.io :as io]))
-
-(defn has-text?
-  "returns true if expected occurs in text exactly n times (one or more times if not specified)"
-  ([text expected]
-     (not= -1 (.indexOf text expected)))
-  ([text expected times]
-     (= times (count (re-seq (re-pattern expected) text)))))
 
 (deftest test-preprocess-dieter
   (let [manifest (io/file "test/fixtures/assets/javascripts/manifest.js.dieter")

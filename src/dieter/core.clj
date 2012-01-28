@@ -13,7 +13,10 @@
    [ring.middleware.file :only [wrap-file]]))
 
 (comment "TODO:"
-         "logging")
+         "logging"
+         "preserve rhino env between calls (performance enhancement)"
+         "maybe keep track of modify times"
+         "maybe use stringbuilders instead of generating intermediate strings")
 
 (defn write-to-cache [content requested-path]
   (let [dest (io/file (cached-file-path requested-path content))]

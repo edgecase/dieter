@@ -6,7 +6,7 @@
    :asset-root "resources"
    :cache-root "resources/asset-cache"
    :cache-mode :development
-   :hbs-mode :handlebars})
+   :hbs-mode   :handlebars})
 
 (defonce cached-paths (atom {}))
 

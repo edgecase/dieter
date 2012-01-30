@@ -1,5 +1,5 @@
-(defproject dieter "0.0.1-SNAPSHOT"
-  :description "(inc sprockets)"
+(defproject dieter "0.1.0"
+  :description "Asset pipeline ring middleware"
   :dependencies [[ring "1.0.1"]
                  [com.google.javascript/closure-compiler "r1592"]
                  [rhino/js "1.7R2"]]

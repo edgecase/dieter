@@ -1,7 +1,6 @@
 # Dieter
 
-Dieter is a clojure interpretation of the ruby Sprockets library.
-When you use it you will feel as happy as a little girl.
+Dieter [dee-ter] is a clojure interpretation of the ruby Sprockets library.
 
 ## Usage
 
@@ -48,6 +47,10 @@ In order to include links to your assets you may use the link-to-asset function.
 ```clojure
 (link-to-asset "javascripts/app.js" config-options)
 ```
+
+## Dancing
+
+Now it's [time to dance](http://youtu.be/LxQ6olQjebg)
 
 ## License
 

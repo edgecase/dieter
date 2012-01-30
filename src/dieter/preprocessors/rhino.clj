@@ -19,6 +19,15 @@
     (let [fun (.get scope fn-name scope)]
       (.call fun cx scope nil (into-array args)))))
 
+(defn getvar
+  ([scope name]
+     (getvar scope name scope))
+  ([scope name obj]
+     (.get scope name obj)))
+
+(defn setvar [scope name val]
+  (.put scope name scope val))
+
 (defn load-vendor [filename context scope]
   (.evaluateReader context scope
                    (io/reader (io/resource (str "vendor/" filename)))

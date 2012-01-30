@@ -14,7 +14,6 @@
 
 (comment "TODO:"
          "logging"
-         "preserve rhino env between calls (performance enhancement)"
          "maybe keep track of modify times"
          "maybe use stringbuilders instead of generating intermediate strings")
 

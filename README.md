@@ -14,13 +14,13 @@ Insert it into your ring middleware stack
 
 ```clojure
 (-> app
-    (asset-pipeline))
+    (asset-pipeline config-options))
 ```
 
 Or if you use noir
 
 ```clojure
-(server/add-middleware asset-pipeline)
+(server/add-middleware asset-pipeline config-options)
 ```
 
 Concatination of assets is handled by a Dieter manifest file.
@@ -40,6 +40,14 @@ For example, a file named assets/javascripts/app.js.dieter with the following co
 
 Dieter would look for base.js in the same directory, framework.js in any subdirectory,
 and then concatenate each file from the lib and models directories.
+
+## Linkage
+
+In order to include links to your assets you may use the link-to-asset function.
+
+```clojure
+(link-to-asset "javascripts/app.js" config-options)
+```
 
 ## License
 

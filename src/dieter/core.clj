@@ -10,7 +10,8 @@
    [dieter.compressor :only [compress-js compress-css]]
    [dieter.preprocessors.handlebars :only [preprocess-handlebars]]
    [dieter.preprocessors.less :only [preprocess-less]]
-   [ring.middleware.file :only [wrap-file]]))
+   [ring.middleware.file :only [wrap-file]]
+   [ring.middleware.file-info :only [wrap-file-info]]))
 
 (comment "TODO:"
          "logging"
@@ -74,10 +75,12 @@ This is the main extension point for adding more precompilation types."
       (-> app
           (wrap-file (cache-root))
           (asset-builder options)
-          (wrap-file (cache-root)))
+          (wrap-file (cache-root))
+          (wrap-file-info))
       (-> app
           (wrap-file (cache-root))
-          (asset-builder options)))))
+          (asset-builder options)
+          (wrap-file-info)))))
 
 (defn link-to-asset [path & [options]]
   "path should start under assets and not contain a leading slash

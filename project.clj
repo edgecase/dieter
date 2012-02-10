@@ -1,4 +1,4 @@
-(defproject dieter "0.1.0"
+(defproject dieter "0.1.1"
   :description "Asset pipeline ring middleware"
   :dependencies [[ring "1.0.1"]
                  [com.google.javascript/closure-compiler "r1592"]

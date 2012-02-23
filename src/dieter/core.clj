@@ -9,6 +9,7 @@
                        uncachify-filename cache-busting-path]]
    [dieter.compressor :only [compress-js compress-css]]
    [dieter.preprocessors.handlebars :only [preprocess-handlebars]]
+   [dieter.preprocessors.hamlcoffee :only [preprocess-hamlcoffee]]
    [dieter.preprocessors.less :only [preprocess-less]]
    [ring.middleware.file :only [wrap-file]]
    [ring.middleware.file-info :only [wrap-file-info]]))
@@ -40,6 +41,9 @@ This is the main extension point for adding more precompilation types."
 
 (defmethod preprocess-file :less [file]
   (preprocess-less file))
+
+(defmethod preprocess-file :hamlc [file]
+  (preprocess-hamlcoffee file))
 
 (defn compress [text requested-path]
   "optionally compress (minify) text, according to settings and file type"

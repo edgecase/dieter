@@ -9,6 +9,8 @@
 
 (defmacro defscope [name & preloads]
   `(with-context context#
+     (.setOptimizationLevel context# -1) ; Rhino hits a 64K limit when compiling
+                                        ; coffeescript without this
      (let [scope#  (.initStandardObjects context#)]
        (doseq [file# '~preloads]
          (load-vendor file# context# scope#))

@@ -8,10 +8,10 @@
 (defn filename-without-ext [file]
   (cstr/replace (.getName file) #"\..*$" ""))
 
-(defn compile-hamlcoffee [string filename]
-  (str (call "compileHamlCoffee" scope string filename)))
+(defn compile-hamlcoffee [input filename]
+  (str (call "compileHamlCoffee" scope input filename)))
 
 (defn preprocess-hamlcoffee [file]
-  (let [string (slurp file)
+  (let [input (slurp file)
         filename (filename-without-ext file)]
-    (compile-hamlcoffee string filename)))
+    (compile-hamlcoffee input filename)))

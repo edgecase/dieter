@@ -18,11 +18,6 @@
            (preprocess-hamlcoffee
             (io/file "test/fixtures/assets/javascripts/basic.hamlc"))))))
 
-  ;; (testing "file with partials"
-  ;;   (is (= "TODO"
-  ;;          (preprocess-hamlcoffee
-  ;;           (io/file "test/fixtures/assets/javascripts/with-partials.hamlc")))))
-
   ;; (testing "file with surround and succeed"
   ;;   (is (= "TODO"
   ;;          (preprocess-hamlcoffee

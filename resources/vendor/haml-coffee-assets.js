@@ -21,15 +21,18 @@ var HamlCoffeeAssets = (function(){
        *
        * @param name [String] the name of the template that is registered to the namespace
        * @param source [String] the template source code to be compiled
-       * @param namespace [String] the template namespace
        * @param jst [Boolean] if a JST template should be generated
+       * @param namespace [String] the template namespace
        * @param format [String] output HTML format
        * @param uglify [Boolean] skip HTML indention
        * @param basename [Boolean] ignore path when generate JST
        * @param escapeHtml [Boolean] whether to escape HTML output by default or not
        * @param escapeAttributes [Boolean] whether to escape HTML attributes output by default or not
+       * @param cleanValue [Boolean]
        * @param customHtmlEscape [String] the name of the function to escape the output
        * @param customCleanValue [String] the name of the function to clean the code output
+       * @param customPreserve [String] the name of the function for the preserve helper
+       * @param customFindAndPreserver [String] the name of the function for the findAndPreserver helper
        * @param customSurround [String] the name of the function for the surround helper
        * @param customSucceed [String] the name of the function for the succeed helper
        * @param customPrecede [String] the name of the function for the precede helper

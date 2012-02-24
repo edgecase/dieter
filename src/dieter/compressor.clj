@@ -13,7 +13,8 @@
     (.compile compiler (make-array JSSourceFile 0)
               (into-array JSSourceFile [(JSSourceFile/fromCode "awesome-js" text)])
               options)
-    (or (seq (.toSource compiler)) text)))
+    (let [source (.toSource compiler)]
+      (if (seq source) source text))))
 
 (defn compress-css [text]
   (-> text

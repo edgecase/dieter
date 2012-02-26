@@ -8,10 +8,21 @@
 (defn filename-without-ext [file]
   (cstr/replace (.getName file) #"\..*$" ""))
 
-(defn compile-hamlcoffee [input filename]
-  (str (call "compileHamlCoffee" scope input filename)))
+(defn format-error [e]
+  (str
+   "#ERROR: '" (getvar e "message" scope) "'"
+;   "IN FILE: " (getvar e "filename" scope)
+;   "LINE: " (getvar e "line" scope) "\n"
+;   (join-js-array (getvar e "extract" scope))
+))
+
 
 (defn preprocess-hamlcoffee [file]
+  (setvar scope "coffeeError" nil)
   (let [input (slurp file)
-        filename (filename-without-ext file)]
-    (compile-hamlcoffee input filename)))
+        filename (filename-without-ext file)
+        result (call "compileHamlCoffee" scope input filename)
+        e (getvar scope "coffeeError")]
+    (if e
+      (throw (Exception. (format-error e)))
+      result)))

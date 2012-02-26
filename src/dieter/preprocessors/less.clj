@@ -25,7 +25,5 @@
   (setvar scope "lessError" nil)
   (call "compileLess" scope (.getCanonicalPath file))
   (if-let [e (getvar scope "lessError")]
-    (let [err-str (format-error e)]
-      (println err-str)
-      err-str)
+    (throw (Exception. (format-error e)))
     (getvar scope "lessResult")))

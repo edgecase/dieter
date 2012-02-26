@@ -13,7 +13,7 @@ function loadStyleSheet(sheet, callback, reload, remaining) {
   var input = readFile(sheetName);
   var parser = new less.Parser({
 //    paths: [sheet.href.replace(/[\w\.-]+$/, '')]
-    paths: ["test/fixtures/assets/stylesheets/"]
+//    paths: ["test/fixtures/assets/stylesheets/"]
   });
   parser.parse(input, function (e, root) {
       callback(e, root, sheet);
@@ -45,7 +45,11 @@ function compileLess(filename) {
     if (e) {
       lessError = e;
     } else {
-      lessResult = root.toCSS();
+      try {
+        lessResult = root.toCSS();
+      } catch (e) {
+        lessError = e;
+      }
     }
   });
 }

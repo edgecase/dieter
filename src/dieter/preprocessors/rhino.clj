@@ -2,35 +2,37 @@
   (:require [clojure.java.io :as io])
   (:import [org.mozilla.javascript Context NativeObject]))
 
-(defmacro with-context [context & body]
-  `(let [~context (Context/enter)]
+(def ^:dynamic context nil)
+(def ^:dynamic scope nil)
+
+(defmacro with-context [& body]
+  `(binding [context (Context/enter)]
+     (.setOptimizationLevel context -1) ; Rhino hits a 64K limit when compiling
+                                        ; coffeescript without this
      (try ~@body
           (finally (Context/exit)))))
 
-(defmacro defscope [name & preloads]
-  `(with-context context#
-     (.setOptimizationLevel context# -1) ; Rhino hits a 64K limit when compiling
-                                        ; coffeescript without this
-     (let [scope#  (.initStandardObjects context#)]
+(defmacro with-scope [preloads & body]
+  `(with-context
+     (binding [scope (.initStandardObjects context)]
        (doseq [file# '~preloads]
-         (load-vendor file# context# scope#))
-       (defonce ~name scope#))))
+         (load-vendor file#))
+       (do ~@body))))
 
-(defn call [fn-name scope & args]
-  (with-context cx
-    (let [fun (.get scope fn-name scope)]
-      (.call fun cx scope nil (into-array args)))))
+(defn call [fn-name & args]
+  (let [fun (.get scope fn-name scope)]
+    (.call fun context scope nil (into-array args))))
 
 (defn getvar
-  ([scope name]
-     (getvar scope name scope))
-  ([scope name obj]
+  ([name]
+     (getvar name scope))
+  ([name obj]
      (.get scope name obj)))
 
-(defn setvar [scope name val]
+(defn setvar [name val]
   (.put scope name scope val))
 
-(defn load-vendor [filename context scope]
+(defn load-vendor [filename]
   (.evaluateReader context scope
                    (io/reader (io/resource (str "vendor/" filename)))
                    filename 1 nil))

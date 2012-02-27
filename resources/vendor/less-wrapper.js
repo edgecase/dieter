@@ -45,7 +45,7 @@ function compileLess(filename) {
     if (e) {
       throw(e);
     } else {
-      lessResult = root.toCSS();
+      return root.toCSS();
     }
   });
 }

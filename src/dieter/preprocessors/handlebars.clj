@@ -1,7 +1,7 @@
 (ns dieter.preprocessors.handlebars
   (:require [clojure.java.io :as io]
             [clojure.string :as cstr])
-  (:use [dieter.preprocessors.rhino :only [with-scope call]]
+  (:use [dieter.preprocessors.rhino :only [with-scope call make-pool]]
         [dieter.settings :only [*settings*]])
   (:import [org.mozilla.javascript Context NativeObject]))
 
@@ -19,8 +19,9 @@
        (call "precompileHandlebars" string)
        ");"))
 
+(def pool (make-pool))
 (defn preprocess-handlebars [file]
-  (with-scope ["hbs-wrapper.js" "ember-0.9.4.js"]
+  (with-scope pool ["hbs-wrapper.js" "ember-0.9.4.js"]
     (let [hbs (slurp file)
           filename (filename-without-ext file)]
       (case (:hbs-mode *settings*)

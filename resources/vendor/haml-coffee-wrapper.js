@@ -1,7 +1,6 @@
 var coffeeError;
 
 function compileHamlCoffee(input, filename) {
-  try {
     return HamlCoffeeAssets.compile(filename,
                                     input,
                                     true,
@@ -24,7 +23,4 @@ function compileHamlCoffee(input, filename) {
                                     '',
                                     '',
                                     '');
-  } catch (e) {
-    coffeeError = e;
-  }
 }

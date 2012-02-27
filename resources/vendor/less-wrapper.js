@@ -37,19 +37,15 @@ function compileLess(filename) {
   var input = readFile(name);
 
   if (!input) {
-    return lessError = 'lesscss: couldn\'t open file ' + name;
+    throw('lesscss: couldn\'t open file ' + name);
   }
 
   var parser = new less.Parser();
   parser.parse(input, function (e, root) {
     if (e) {
-      lessError = e;
+      throw(e);
     } else {
-      try {
-        lessResult = root.toCSS();
-      } catch (e) {
-        lessError = e;
-      }
+      lessResult = root.toCSS();
     }
   });
 }

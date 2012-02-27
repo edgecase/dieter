@@ -14,7 +14,7 @@ function readFile(filename){
 
 function loadStyleSheet(sheet, callback, reload, remaining) {
   var sheetName = startingName.slice(0, startingName.lastIndexOf('/') + 1) + sheet.href;
-  var input = readFile(startingName);
+  var input = readFile(sheetName);
   var parser = new less.Parser();
   parser.parse(input, function (e, root) {
     if (e) throw e

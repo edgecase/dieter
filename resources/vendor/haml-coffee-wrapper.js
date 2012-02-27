@@ -26,6 +26,5 @@ function compileHamlCoffee(input, filename) {
                                     '');
   } catch (e) {
     coffeeError = e;
-    throw e;
   }
 }

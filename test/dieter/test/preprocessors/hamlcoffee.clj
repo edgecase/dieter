@@ -10,7 +10,7 @@
        name
        "'] = function(context) {\n    return (function() {\n      var $o;\n      $o = [];\n      $o.push(\""
        output
-       "\");\n      return $o.join(\"\\n\").replace(/\\s(\\w+)='true'/mg, ' $1').replace(/\\s(\\w+)='false'/mg, '');\n    }).call(undefined(context));\n  };\n}).call(this);\n"))
+       "\");\n      return $o.join(\"\\n\").replace(/\\s(\\w+)='true'/mg, ' $1').replace(/\\s(\\w+)='false'/mg, '');\n    }).call(context);\n  };\n}).call(this);\n"))
 
 (deftest test-preprocess-hamlcoffee
   (testing "basic hamlc file"

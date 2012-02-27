@@ -1,51 +1,54 @@
 // stolen from less and modified so we can call it from runtime
 // instead of commandline
 
-var name, lessResult, lessError;
+var startingName;
 
-function readFile(name){
-  var file = java.io.File(name);
-  return new String(Packages.org.apache.commons.io.FileUtils.readFileToString(file));
+function readFile(filename){
+  var file = java.io.File(filename);
+  result = new String(Packages.org.apache.commons.io.FileUtils.readFileToString(file));
+  if (result == '')
+    throw('lesscss: couldn\'t open file ' + filename);
+
+  return result;
 }
 
 function loadStyleSheet(sheet, callback, reload, remaining) {
-  var sheetName = name.slice(0, name.lastIndexOf('/') + 1) + sheet.href;
-  var input = readFile(sheetName);
-  var parser = new less.Parser({
-//    paths: [sheet.href.replace(/[\w\.-]+$/, '')]
-//    paths: ["test/fixtures/assets/stylesheets/"]
-  });
+  var sheetName = startingName.slice(0, startingName.lastIndexOf('/') + 1) + sheet.href;
+  var input = readFile(startingName);
+  var parser = new less.Parser();
   parser.parse(input, function (e, root) {
-      callback(e, root, sheet);
+    if (e) throw e
+    callback(e, root, sheet);
   });
 
   // callback({}, sheet, { local: true, remaining: remaining });
 }
 
-// function writeFile(filename, content) {
-//     var fstream = new java.io.FileWriter(filename);
-//     var out = new java.io.BufferedWriter(fstream);
-//     out.write(content);
-//     out.close();
-// }
+function format_error(e) {
+  return "ERROR:" + e.filename + ":" + e.line + ":" + e.column + ": \n" +
+    e.message +
+    "\nTYPE: " + e.type +
+    "\nINDEX: " + e.index +
+    "\nEXTRACT: " + e.extract
+}
 
 function compileLess(filename) {
-  name = filename;
+  // save it for resolving imports
+  startingName = filename;
 
-  path = name.split("/");path.pop();path=path.join("/")
+  var lessResult;
 
-  var input = readFile(name);
+  var input = readFile(filename);
 
-  if (!input) {
-    throw('lesscss: couldn\'t open file ' + name);
-  }
+  try {
+    var parser = new less.Parser();
+    parser.parse(input, function (e, root) {
+      if (e)
+        throw(e);
 
-  var parser = new less.Parser();
-  parser.parse(input, function (e, root) {
-    if (e) {
-      throw(e);
-    } else {
-      return root.toCSS();
-    }
-  });
+      // Write to an in-scope variable that can be returned.
+      lessResult = root.toCSS();
+    });
+  } catch (e) { throw(format_error(e)); }
+  return lessResult;
 }

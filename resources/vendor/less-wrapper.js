@@ -13,7 +13,7 @@ function loadStyleSheet(sheet, callback, reload, remaining) {
   var input = readFile(sheetName);
   var parser = new less.Parser({
 //    paths: [sheet.href.replace(/[\w\.-]+$/, '')]
-    paths: ["test/fixtures/assets/stylesheets/"]
+//    paths: ["test/fixtures/assets/stylesheets/"]
   });
   parser.parse(input, function (e, root) {
       callback(e, root, sheet);
@@ -37,15 +37,15 @@ function compileLess(filename) {
   var input = readFile(name);
 
   if (!input) {
-    return lessError = 'lesscss: couldn\'t open file ' + name;
+    throw('lesscss: couldn\'t open file ' + name);
   }
 
   var parser = new less.Parser();
   parser.parse(input, function (e, root) {
     if (e) {
-      lessError = e;
+      throw(e);
     } else {
-      lessResult = root.toCSS();
+      return root.toCSS();
     }
   });
 }

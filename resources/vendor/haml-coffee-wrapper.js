@@ -4,7 +4,7 @@ function compileHamlCoffee(input, filename) {
     return HamlCoffeeAssets.compile(filename,
                                     input,
                                     true,
-                                    "HAML",
+                                    null,
                                     "html5",
                                     false, // dieter uglifies automatically
                                     false,

@@ -52,6 +52,13 @@ This is the main extension point for adding more precompilation types."
 (defmethod preprocess-file :cs [file]
   (preprocess-coffeescript file))
 
+(def known-mime-types
+  {:hbs "text/javascript"
+   "less" "text/javascript"
+   "hamlc" "text/javascript"
+   "coffee" "text/javascript"
+   "cs" "text/javascript"})
+
 (defn compress [text requested-path]
   "optionally compress (minify) text, according to settings and file type"
   (if (:compress *settings*)
@@ -87,11 +94,11 @@ This is the main extension point for adding more precompilation types."
           (wrap-file (cache-root))
           (asset-builder options)
           (wrap-file (cache-root))
-          (wrap-file-info))
+          (wrap-file-info known-mime-types))
       (-> app
           (wrap-file (cache-root))
           (asset-builder options)
-          (wrap-file-info)))))
+          (wrap-file-info known-mime-types)))))
 
 (defn link-to-asset [path & [options]]
   "path should start under assets and not contain a leading slash

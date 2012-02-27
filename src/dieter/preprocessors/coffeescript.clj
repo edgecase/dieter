@@ -3,9 +3,9 @@
 
 (def pool (make-pool))
 
-(defn compile-coffeescript [input]
+(defn compile-coffeescript [input filename]
   (with-scope pool ["coffee-script.js" "coffee-wrapper.js"]
-    (str (call "compileCoffeeScript" input))))
+    (str (call "compileCoffeeScript" input filename))))
 
 (defn preprocess-coffeescript [file]
-  (compile-coffeescript (slurp file)))
+  (compile-coffeescript (slurp file) (.getCanonicalPath file)))

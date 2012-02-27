@@ -1,3 +1,11 @@
+function formatError(e, filename) {
+  return filename + ": " + e.message;
+}
+
 function compileCoffeeScript(input, filename) {
-  return CoffeeScript.compile(input);
+  try {
+      return CoffeeScript.compile(input);
+  } catch (e) {
+    throw formatError(e, filename);
+  }
 }

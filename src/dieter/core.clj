@@ -54,7 +54,7 @@ This is the main extension point for adding more precompilation types."
 
 (def known-mime-types
   {:hbs "text/javascript"
-   "less" "text/javascript"
+   "less" "text/css"
    "hamlc" "text/javascript"
    "coffee" "text/javascript"
    "cs" "text/javascript"})

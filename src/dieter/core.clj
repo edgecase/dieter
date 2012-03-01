@@ -9,6 +9,8 @@
                        uncachify-filename cache-busting-path]]
    [dieter.compressor :only [compress-js compress-css]]
    [dieter.preprocessors.handlebars :only [preprocess-handlebars]]
+   [dieter.preprocessors.hamlcoffee :only [preprocess-hamlcoffee]]
+   [dieter.preprocessors.coffeescript :only [preprocess-coffeescript]]
    [dieter.preprocessors.less :only [preprocess-less]]
    [ring.middleware.file :only [wrap-file]]
    [ring.middleware.file-info :only [wrap-file-info]]))
@@ -40,6 +42,22 @@ This is the main extension point for adding more precompilation types."
 
 (defmethod preprocess-file :less [file]
   (preprocess-less file))
+
+(defmethod preprocess-file :hamlc [file]
+  (preprocess-hamlcoffee file))
+
+(defmethod preprocess-file :coffee [file]
+  (preprocess-coffeescript file))
+
+(defmethod preprocess-file :cs [file]
+  (preprocess-coffeescript file))
+
+(def known-mime-types
+  {:hbs "text/javascript"
+   "less" "text/css"
+   "hamlc" "text/javascript"
+   "coffee" "text/javascript"
+   "cs" "text/javascript"})
 
 (defn compress [text requested-path]
   "optionally compress (minify) text, according to settings and file type"
@@ -76,11 +94,11 @@ This is the main extension point for adding more precompilation types."
           (wrap-file (cache-root))
           (asset-builder options)
           (wrap-file (cache-root))
-          (wrap-file-info))
+          (wrap-file-info known-mime-types))
       (-> app
           (wrap-file (cache-root))
           (asset-builder options)
-          (wrap-file-info)))))
+          (wrap-file-info known-mime-types)))))
 
 (defn link-to-asset [path & [options]]
   "path should start under assets and not contain a leading slash

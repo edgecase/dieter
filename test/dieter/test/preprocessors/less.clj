@@ -11,5 +11,9 @@
     (is (= "#includee {\n  color: white;\n}\n#includer {\n  color: black;\n}\n"
            (preprocess-less (io/file "test/fixtures/assets/stylesheets/includes.less")))))
   (testing "bad less syntax"
-    (is (has-text? (preprocess-less (io/file "test/fixtures/assets/stylesheets/bad.less")) "ERROR: Syntax Error on line 1"))
-    (is (has-text? (preprocess-less (io/file "test/fixtures/assets/stylesheets/bad.less")) "@import \"includeme.less\""))))
+    (try
+      (preprocess-less (io/file "test/fixtures/assets/stylesheets/bad.less"))
+      (is false) ; test it throws
+      (catch Exception e
+        (is (has-text? (.toString e) "Syntax Error on line 1"))
+        (is (has-text? (.toString e) "@import \"includeme.less\""))))))

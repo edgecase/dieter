@@ -6,9 +6,12 @@ Dieter [dee-ter] is a clojure interpretation of the ruby Sprockets library.
 
 Dieter provides you with a ring middleware which will compile certain
 static assets. Currently it supports concatiating javascript and CSS
-files, compiling [LESS CSS](http://lesscss.org/), and compiling
-[Handlebars](https://github.com/wycats/handlebars.js). In addition it
-minifies javascript using the Google Closure compiler.
+files, compiling
+[LESS CSS](http://lesscss.org/),
+[Handlebars](https://github.com/wycats/handlebars.js),
+[CoffeeScript](http://jashkenas.github.com/coffee-script/) and
+[Haml-coffee](https://github.com/9elements/haml-coffee).
+In addition it minifies javascript using the Google Closure compiler.
 
 Insert it into your ring middleware stack
 
@@ -66,6 +69,12 @@ If you use handlebars with Ember.js your .hbs templates need to be compiled with
 different function. In that case set :hbs-mode to :ember.
 
 Note you need to pass your config options to asset-pipeline as well as link-to-asset.
+
+## Contributing
+
+It is easy to add new preprocessors to dieter. Each preprocessor (CoffeeScript, HamlCoffee,
+Handlebars, etc) uses the default library for that language, hooked up to dieter using the Rhino
+JavaScript library. See src/dieter/preprocessors/ for easy-to-follow examples.
 
 ## Dancing
 

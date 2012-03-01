@@ -13,6 +13,10 @@ files, compiling
 [Haml-coffee](https://github.com/9elements/haml-coffee).
 In addition it minifies javascript using the Google Closure compiler.
 
+Add dieter as a dependency in leiningen
+
+    [dieter "0.1.2"]
+
 Insert it into your ring middleware stack
 
 ```clojure

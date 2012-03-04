@@ -1,6 +1,7 @@
 (ns dieter.preprocessors.handlebars
   (:require [clojure.java.io :as io]
-            [clojure.string :as cstr])
+            [clojure.string :as cstr]
+            [dieter.asset :as asset])
   (:use [dieter.preprocessors.rhino :only [with-scope call make-pool]]
         [dieter.settings :only [*settings*]])
   (:import [org.mozilla.javascript Context NativeObject]))
@@ -28,3 +29,10 @@
         :handlebars (compile-handlebars hbs filename)
         :ember (compile-ember hbs filename)
         :else (throw "hbs-mode not supported")))))
+
+(defrecord Handlebars [file]
+  dieter.asset.Asset
+  (read-asset [this options]
+    (dieter.asset.Js. (:file this) (preprocess-handlebars (:file this)))))
+
+(asset/register "hbs" map->Handlebars)

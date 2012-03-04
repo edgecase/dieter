@@ -11,7 +11,7 @@
     (.setOptionsForWarningLevel (WarningLevel/QUIET) options)
     (.setLevel (Logger/getLogger "com.google.javascript.jscomp") Level/OFF)
     (.compile compiler (make-array JSSourceFile 0)
-              (into-array JSSourceFile [(JSSourceFile/fromCode "awesome-js" text)])
+              (into-array JSSourceFile [(JSSourceFile/fromCode "awesome-js" (str text))])
               options)
     (let [source (.toSource compiler)]
       (if (seq source) source text))))

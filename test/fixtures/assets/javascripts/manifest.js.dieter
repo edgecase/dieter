@@ -2,6 +2,7 @@
   "./app.js"
   "framework.js"
   "dontfindme.js"
+  "./lib.js"
   "./lib/"
   "./models/"
 ]

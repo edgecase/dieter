@@ -10,6 +10,10 @@
   (let [manifest (io/file "test/fixtures/assets/javascripts/manifest.js.dieter")
         files (manifest-files manifest)]
     (is (contains-file? files (io/file "test/fixtures/assets/javascripts/app.js")))
+    
+    (testing "load javascript file with same name as directory to be loaded"
+      (is (contains-file? files (io/file "test/fixtures/assets/javascripts/lib.js"))))
+    
     (is (contains-file? files (io/file "test/fixtures/assets/javascripts/lib/framework.js")))
     (is (contains-file? files (io/file "test/fixtures/assets/javascripts/lib/dquery.js")))
     (is (contains-file? files (io/file "test/fixtures/assets/javascripts/models/feature.js")))

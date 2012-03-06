@@ -30,7 +30,7 @@ static file middleware can be rooted at cache-root"
     (cond
      (re-matches #".*/$" relative-path) (io/file start-dir relative-path)
      relative-parent (io/file start-dir relative-parent)
-    :else start-dir)))
+     :else start-dir)))
 
 (defn find-in-files [filename files]
   (let [[_ basename] (re-matches #"(^.*?)(?:\.\w+)?$" filename)

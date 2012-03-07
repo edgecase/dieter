@@ -15,7 +15,7 @@ In addition it minifies javascript using the Google Closure compiler.
 
 Add dieter as a dependency in leiningen
 
-    [dieter "0.1.2"]
+    [dieter "0.1.3"]
 
 Insert it into your ring middleware stack
 

@@ -5,24 +5,6 @@
   (:use dieter.test.helpers)
   (:require [clojure.java.io :as io]))
 
-(comment test-preprocess-dieter
-  (let [manifest (io/file "test/fixtures/assets/javascripts/manifest.js.dieter")
-        text (preprocess-file manifest)]
-
-    (testing "relative file paths"
-      (is (has-text? text "var file = \"/app.js\"")))
-
-    (testing "non-specific file paths"
-      (is (has-text? text "var file = \"/lib/framework.js\"")))
-
-    (testing "comments indicating original file source"
-      (is (has-text? text "/* Source: test/fixtures/assets/javascripts/lib/framework.js */")))
-
-    (testing "trailing slash requires all files under that directory"
-      (is (has-text? text "var file = \"/lib/dquery.js\"")))
-
-    (testing "multiple requires are included only once, the first occurrence"
-      (is (has-text? text "var file = \"/lib/framework.js\"" 1)))))
 
 (comment test-compress
   (let [uncompressed-js " var foo = 'bar'; "

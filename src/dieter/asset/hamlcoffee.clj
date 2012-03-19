@@ -1,8 +1,10 @@
-(ns dieter.preprocessors.hamlcoffee
-  (:use dieter.preprocessors.rhino)
-  (:require [clojure.string :as cstr]
-            [dieter.asset :as asset])
-  (:import [org.mozilla.javascript JavaScriptException]))
+(ns dieter.asset.hamlcoffee
+  (:use
+   dieter.rhino
+   [dieter.asset :only [register]])
+  (:require
+   dieter.asset.javascript
+   [clojure.string :as cstr]))
 
 (defn filename-without-ext [file]
   (cstr/replace (.getName file) #"\..*$" ""))
@@ -21,6 +23,6 @@
 (defrecord HamlCoffee [file]
   dieter.asset.Asset
   (read-asset [this options]
-    (dieter.asset.Js. (:file this) (preprocess-hamlcoffee (:file this)))))
+    (dieter.asset.javascript.Js. (:file this) (preprocess-hamlcoffee (:file this)))))
 
-(asset/register "hamlc" map->HamlCoffee)
+(register "hamlc" map->HamlCoffee)

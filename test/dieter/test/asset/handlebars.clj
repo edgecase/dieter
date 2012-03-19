@@ -1,5 +1,5 @@
-(ns dieter.test.preprocessors.handlebars
-  (:use dieter.preprocessors.handlebars)
+(ns dieter.test.asset.handlebars
+  (:use dieter.asset.handlebars)
   (:use clojure.test)
   (:use dieter.settings)
   (:use dieter.test.helpers)

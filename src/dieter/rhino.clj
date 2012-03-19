@@ -1,4 +1,4 @@
-(ns dieter.preprocessors.rhino
+(ns dieter.rhino
   (:require [clojure.java.io :as io])
   (:import [org.mozilla.javascript Context NativeObject]))
 

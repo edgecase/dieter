@@ -1,9 +1,11 @@
 (ns dieter.core
   (:require
-   dieter.preprocessors.handlebars
-   dieter.preprocessors.hamlcoffee
-   dieter.preprocessors.coffeescript
-   dieter.preprocessors.less
+   dieter.asset.javascript
+   dieter.asset.css
+   dieter.asset.static
+   dieter.asset.less
+   dieter.asset.coffeescript
+   dieter.asset.hamlcoffee
    [clojure.string :as cstr]
    [clojure.java.io :as io])
   (:use

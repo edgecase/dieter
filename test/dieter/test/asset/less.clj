@@ -1,5 +1,5 @@
-(ns dieter.test.preprocessors.less
-  (:use dieter.preprocessors.less)
+(ns dieter.test.asset.less
+  (:use dieter.asset.less)
   (:use clojure.test)
   (:use dieter.test.helpers)
   (:require [clojure.java.io :as io]))

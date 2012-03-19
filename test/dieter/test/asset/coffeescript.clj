@@ -1,5 +1,5 @@
-(ns dieter.test.preprocessors.coffeescript
-  (:use dieter.preprocessors.coffeescript)
+(ns dieter.test.asset.coffeescript
+  (:use dieter.asset.coffeescript)
   (:use clojure.test)
   (:use dieter.test.helpers)
   (:require [clojure.java.io :as io]))

@@ -1,6 +1,7 @@
-(ns dieter.preprocessors.coffeescript
-  (:use [dieter.preprocessors.rhino :only (call with-scope make-pool)])
-  (:require [dieter.asset :as asset]))
+(ns dieter.asset.coffeescript
+  (:require dieter.asset.javascript)
+  (:use [dieter.rhino :only (call with-scope make-pool)])
+  (:use [dieter.asset :only [register]]))
 
 (def pool (make-pool))
 
@@ -14,7 +15,7 @@
 (defrecord Coffee [file]
   dieter.asset.Asset
   (read-asset [this options]
-    (dieter.asset.Js. (:file this) (preprocess-coffeescript (:file this)))))
+    (dieter.asset.javascript.Js. (:file this) (preprocess-coffeescript (:file this)))))
 
-(asset/register "coffee" map->Coffee)
-(asset/register "cs" map->Coffee)
+(register "coffee" map->Coffee)
+(register "cs" map->Coffee)

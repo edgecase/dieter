@@ -34,10 +34,18 @@
         builder (asset-builder app options)]
     (testing "plain file paths"
       (reset! cached-paths {})
-      (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js" (builder {:uri "/assets/javascripts/app.js"})))
-      (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js" (get @cached-paths "/assets/javascripts/app.js")))
+      (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js"
+             (builder {:uri "/assets/javascripts/app.js"})))
+      (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js"
+             (get @cached-paths "/assets/javascripts/app.js")))
       (.delete (io/file "test/fixtures/asset-cache/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js")))
     (testing "md5'd file paths"
-      (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js" (builder {:uri "/assets/javascripts/app-12345678901234567890123456789012.js"})))
-      (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js" (get @cached-paths "/assets/javascripts/app.js")))
-      (.delete (io/file "test/fixtures/asset-cache/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js")))))
+      (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js"
+             (builder {:uri "/assets/javascripts/app-12345678901234567890123456789012.js"})))
+      (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js"
+             (get @cached-paths "/assets/javascripts/app.js")))
+      (.delete (io/file "test/fixtures/asset-cache/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js")))
+    (testing "binary files"
+      (is (= "/assets/images/dieter-102c15cd1a2dfbe24b8a5f12f2671fc8.jpeg"
+             (builder {:uri "/assets/images/dieter.jpeg"})))
+      (.delete (io/file "test/fixtures/asset-cache/assets/images/dieter-102c15cd1a2dfbe24b8a5f12f2671fc8.jpeg")))))

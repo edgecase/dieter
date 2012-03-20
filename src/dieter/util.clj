@@ -1,9 +1,9 @@
 (ns dieter.util
   (:require [clojure.java.io :as io]))
 
-(defn slurp-into [builder f]
+(defn slurp-into [#^StringBuilder builder f]
   "read file contents into an existing string builder"
-  (with-open [r (io/reader f)]
+  (with-open [#^java.io.Reader r (io/reader f)]
     (loop [c (.read r)]
       (if (neg? c)
         builder

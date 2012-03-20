@@ -62,7 +62,8 @@ In order to include links to your assets you may use the link-to-asset function.
     :asset-root "resources"             ; must have a folder called 'assets'
     :cache-root "resources/asset-cache" ; compiled assets are cached here
     :cache-mode :development            ; or :production. :development disables cacheing
-    :hbs-mode   :handlebars             ; or :ember.
+    :hbs-mode   :handlebars             ; or :ember
+    :log-level  :normal                 ; or :quiet
 
 Dieter searches for your assets in [asset-root]/assets.
 Compiled assets are always written to the cache-root. In production mode this

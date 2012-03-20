@@ -5,28 +5,6 @@
   (:use dieter.test.helpers)
   (:require [clojure.java.io :as io]))
 
-
-(comment test-compress
-  (let [uncompressed-js " var foo = 'bar'; "
-        uncompressed-css "   .content .p {\n color: #fff;\n }"]
-    (testing "compression disabled"
-      (binding [*settings* {:compress false}]
-        (is (= uncompressed-js
-               (compress uncompressed-js "foo.js")))
-        (is (= uncompressed-css
-               (compress uncompressed-css "foo.css")))))
-
-    (testing "compression enabled"
-      (binding [*settings* {:compress true}]
-        (is (= "var foo=\"bar\";"
-               (compress uncompressed-js "foo.js")))
-        (is (= ".content .p { color: #fff; }"
-               (compress uncompressed-css "foo.css")))
-        (testing "with compile errors will not compress"
-          (let [uncompressed-with-errors "var foo = [1, 2, 3, ];"]
-            (is (= uncompressed-with-errors
-                 (compress uncompressed-with-errors "foo.js")))))))))
-
 (deftest test-link-to-asset
   (testing "development mode"
     (let [opts {:cache-mode :development :asset-root "test/fixtures" :cache-root "test/fixtures/asset-cache"}]

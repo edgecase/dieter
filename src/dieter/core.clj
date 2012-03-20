@@ -7,12 +7,11 @@
    dieter.asset.coffeescript
    dieter.asset.hamlcoffee
    dieter.asset.manifest
-   [clojure.string :as cstr]
    [clojure.java.io :as io])
   (:use
    dieter.asset
    dieter.settings
-   [dieter.path :only [find-file cached-file-path file-ext make-relative-to-cache
+   [dieter.path :only [find-file cached-file-path make-relative-to-cache
                        uncachify-filename cache-busting-path write-file]]
    [ring.middleware.file :only [wrap-file]]
    [ring.middleware.file-info :only [wrap-file-info]]))

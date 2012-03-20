@@ -1,5 +1,5 @@
-(ns dieter.test.preprocessors.hamlcoffee
-  (:use dieter.preprocessors.hamlcoffee)
+(ns dieter.test.asset.hamlcoffee
+  (:use dieter.asset.hamlcoffee)
   (:use clojure.test)
   (:use dieter.test.helpers)
   (:require [clojure.java.io :as io]))

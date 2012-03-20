@@ -1,9 +1,12 @@
-(ns dieter.preprocessors.handlebars
-  (:require [clojure.java.io :as io]
-            [clojure.string :as cstr])
-  (:use [dieter.preprocessors.rhino :only [with-scope call make-pool]]
-        [dieter.settings :only [*settings*]])
-  (:import [org.mozilla.javascript Context NativeObject]))
+(ns dieter.asset.handlebars
+  (:require
+   dieter.asset.javascript
+   [clojure.java.io :as io]
+   [clojure.string :as cstr])
+  (:use
+   [dieter.asset :only [register]]
+   [dieter.rhino :only [with-scope call make-pool]]
+   [dieter.settings :only [*settings*]]))
 
 (defn filename-without-ext [file]
   (cstr/replace (.getName file) #"\..*$" ""))
@@ -28,3 +31,10 @@
         :handlebars (compile-handlebars hbs filename)
         :ember (compile-ember hbs filename)
         :else (throw "hbs-mode not supported")))))
+
+(defrecord Handlebars [file]
+  dieter.asset.Asset
+  (read-asset [this options]
+    (dieter.asset.javascript.Js. (:file this) (preprocess-handlebars (:file this)))))
+
+(register "hbs" map->Handlebars)

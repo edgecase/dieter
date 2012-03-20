@@ -5,46 +5,6 @@
   (:use dieter.test.helpers)
   (:require [clojure.java.io :as io]))
 
-(deftest test-preprocess-dieter
-  (let [manifest (io/file "test/fixtures/assets/javascripts/manifest.js.dieter")
-        text (preprocess-file manifest)]
-
-    (testing "relative file paths"
-      (is (has-text? text "var file = \"/app.js\"")))
-
-    (testing "non-specific file paths"
-      (is (has-text? text "var file = \"/lib/framework.js\"")))
-
-    (testing "comments indicating original file source"
-      (is (has-text? text "/* Source: test/fixtures/assets/javascripts/lib/framework.js */")))
-
-    (testing "trailing slash requires all files under that directory"
-      (is (has-text? text "var file = \"/lib/dquery.js\"")))
-
-    (testing "multiple requires are included only once, the first occurrence"
-      (is (has-text? text "var file = \"/lib/framework.js\"" 1)))))
-
-(deftest test-compress
-  (let [uncompressed-js " var foo = 'bar'; "
-        uncompressed-css "   .content .p {\n color: #fff;\n }"]
-    (testing "compression disabled"
-      (binding [*settings* {:compress false}]
-        (is (= uncompressed-js
-               (compress uncompressed-js "foo.js")))
-        (is (= uncompressed-css
-               (compress uncompressed-css "foo.css")))))
-
-    (testing "compression enabled"
-      (binding [*settings* {:compress true}]
-        (is (= "var foo=\"bar\";"
-               (compress uncompressed-js "foo.js")))
-        (is (= ".content .p { color: #fff; }"
-               (compress uncompressed-css "foo.css")))
-        (testing "with compile errors will not compress"
-          (let [uncompressed-with-errors "var foo = [1, 2, 3, ];"]
-            (is (= uncompressed-with-errors
-                 (compress uncompressed-with-errors "foo.js")))))))))
-
 (deftest test-link-to-asset
   (testing "development mode"
     (let [opts {:cache-mode :development :asset-root "test/fixtures" :cache-root "test/fixtures/asset-cache"}]
@@ -74,10 +34,18 @@
         builder (asset-builder app options)]
     (testing "plain file paths"
       (reset! cached-paths {})
-      (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js" (builder {:uri "/assets/javascripts/app.js"})))
-      (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js" (get @cached-paths "/assets/javascripts/app.js")))
+      (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js"
+             (builder {:uri "/assets/javascripts/app.js"})))
+      (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js"
+             (get @cached-paths "/assets/javascripts/app.js")))
       (.delete (io/file "test/fixtures/asset-cache/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js")))
     (testing "md5'd file paths"
-      (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js" (builder {:uri "/assets/javascripts/app-12345678901234567890123456789012.js"})))
-      (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js" (get @cached-paths "/assets/javascripts/app.js")))
-      (.delete (io/file "test/fixtures/asset-cache/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js")))))
+      (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js"
+             (builder {:uri "/assets/javascripts/app-12345678901234567890123456789012.js"})))
+      (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js"
+             (get @cached-paths "/assets/javascripts/app.js")))
+      (.delete (io/file "test/fixtures/asset-cache/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js")))
+    (testing "binary files"
+      (is (= "/assets/images/dieter-102c15cd1a2dfbe24b8a5f12f2671fc8.jpeg"
+             (builder {:uri "/assets/images/dieter.jpeg"})))
+      (.delete (io/file "test/fixtures/asset-cache/assets/images/dieter-102c15cd1a2dfbe24b8a5f12f2671fc8.jpeg")))))

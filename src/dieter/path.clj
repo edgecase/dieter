@@ -6,14 +6,32 @@
   (:import
    [java.security MessageDigest]))
 
-(defn md5 [string]
-  (let [digest (.digest (MessageDigest/getInstance "MD5") (.getBytes string "UTF-8"))]
+(derive (class (make-array Byte/TYPE 0)) ::bytes)
+(derive java.lang.String ::string-like)
+(derive java.lang.StringBuilder ::string-like)
+
+(defmulti md5 class)
+
+(defmethod md5 ::bytes [bytes]
+  (let [digest (.digest (MessageDigest/getInstance "MD5") bytes)]
     (format "%032x" (BigInteger. 1 digest))))
+
+(defmethod md5 ::string-like [string]
+  (md5 (.getBytes (str string) "UTF-8")))
 
 (defn add-md5 [path content]
   (if-let [[match fname ext] (re-matches #"^(.+)\.(\w+)$" path)]
     (str fname "-" (md5 content) "." ext)
     (str path "-" (md5 content))))
+
+(defmulti write-file (fn [c f] (class c)))
+
+(defmethod write-file ::string-like [content file]
+  (spit file content))
+
+(defmethod write-file ::bytes [content file]
+  (with-open [out (java.io.FileOutputStream. file)]
+    (.write out content)))
 
 (defn cached-file-path
   "given the request path, generate the filename of where the file

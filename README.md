@@ -8,14 +8,13 @@ Dieter provides you with a ring middleware which will compile certain
 static assets. Currently it supports concatiating javascript and CSS
 files, compiling
 [LESS CSS](http://lesscss.org/),
-[Handlebars](https://github.com/wycats/handlebars.js),
 [CoffeeScript](http://jashkenas.github.com/coffee-script/) and
 [Haml-coffee](https://github.com/9elements/haml-coffee).
 In addition it minifies javascript using the Google Closure compiler.
 
 Add dieter as a dependency in leiningen
 
-    [dieter "0.1.3"]
+    [dieter "0.2.0"]
 
 Insert it into your ring middleware stack
 
@@ -62,7 +61,6 @@ In order to include links to your assets you may use the link-to-asset function.
     :asset-root "resources"             ; must have a folder called 'assets'
     :cache-root "resources/asset-cache" ; compiled assets are cached here
     :cache-mode :development            ; or :production. :development disables cacheing
-    :hbs-mode   :handlebars             ; or :ember
     :log-level  :normal                 ; or :quiet
 
 Dieter searches for your assets in [asset-root]/assets.
@@ -70,16 +68,13 @@ Compiled assets are always written to the cache-root. In production mode this
 means that the cached assets are served from the cache. However development mode
 assets are always regenerated.
 
-If you use handlebars with Ember.js your .hbs templates need to be compiled with a
-different function. In that case set :hbs-mode to :ember.
-
 Note you need to pass your config options to asset-pipeline as well as link-to-asset.
 
 ## Contributing
 
-It is easy to add new preprocessors to dieter. Each preprocessor (CoffeeScript, HamlCoffee,
-Handlebars, etc) uses the default library for that language, hooked up to dieter using the Rhino
-JavaScript library. See src/dieter/preprocessors/ for easy-to-follow examples.
+It is easy to add new preprocessors to dieter. Each preprocessor (CoffeeScript, HamlCoffee, etc)
+uses the default library for that language, hooked up to dieter using the Rhino
+JavaScript library. See src/dieter/assets/ for easy-to-follow examples.
 
 ## Dancing
 
@@ -90,3 +85,8 @@ Now it's [time to dance](http://youtu.be/LxQ6olQjebg)
 Copyright (C) 2012 EdgeCase
 
 Distributed under the Eclipse Public License, the same as Clojure.
+
+## Breaking Changes
+
+### Version 0.2.0
+* Handlebars templates are now a separate library. [dieter-ember](https://github.com/edgecase/dieter-ember)

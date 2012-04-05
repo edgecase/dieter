@@ -6,7 +6,6 @@
    dieter.asset.less
    dieter.asset.coffeescript
    dieter.asset.hamlcoffee
-   dieter.asset.handlebars
    dieter.asset.manifest
    [clojure.java.io :as io])
   (:use

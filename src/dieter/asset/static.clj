@@ -1,5 +1,4 @@
-(ns dieter.asset.static
-  (:use [dieter.asset :only [register]]))
+(ns dieter.asset.static)
 
 (defrecord Static [file content]
   dieter.asset.Asset
@@ -13,5 +12,3 @@
   dieter.asset.Compressor
   (compress [this options]
     (:content this)))
-
-(register :default map->Static)

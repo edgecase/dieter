@@ -1,6 +1,5 @@
 (ns dieter.asset.less
   (:use
-   [dieter.asset :only [register]]
    [dieter.rhino :only (with-scope make-pool call)])
   (:require
    dieter.asset.css
@@ -17,5 +16,3 @@
   dieter.asset.Asset
   (read-asset [this options]
     (dieter.asset.css.Css. (:file this) (preprocess-less (:file this)))))
-
-(register "less" map->Less)

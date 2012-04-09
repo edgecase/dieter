@@ -1,6 +1,6 @@
 (ns dieter.asset.manifest
   (:use
-   dieter.asset
+   [dieter.asset :only [read-asset make-asset]]
    [dieter.path :only [search-dir find-file]]
    [dieter.util :only [slurp-into string-builder]])
   (:require
@@ -56,5 +56,3 @@ We should probably consider outputting some kind of warning in that case."
       (doseq [file (manifest-files (:file this))]
         (.append builder (:content (read-asset (make-asset file) options))))
       (assoc result :content builder))))
-
-(register "dieter" map->Dieter)

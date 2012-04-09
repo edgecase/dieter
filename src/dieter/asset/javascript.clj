@@ -1,6 +1,5 @@
 (ns dieter.asset.javascript
   (:use
-   [dieter.asset :only [register]]
    [dieter.util :only [slurp-into string-builder]])
   (:import
    [com.google.javascript.jscomp JSSourceFile CompilerOptions CompilationLevel WarningLevel]
@@ -43,5 +42,3 @@
     (if (:compress options)
       (compress-js (:file this) (:content this) options)
       (:content this))))
-
-(register "js" map->Js)

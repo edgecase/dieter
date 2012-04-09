@@ -1,7 +1,5 @@
 (ns dieter.asset.hamlcoffee
-  (:use
-   dieter.rhino
-   [dieter.asset :only [register]])
+  (:use dieter.rhino)
   (:require
    dieter.asset.javascript
    [clojure.string :as cstr]))
@@ -24,5 +22,3 @@
   dieter.asset.Asset
   (read-asset [this options]
     (dieter.asset.javascript.Js. (:file this) (preprocess-hamlcoffee (:file this)))))
-
-(register "hamlc" map->HamlCoffee)

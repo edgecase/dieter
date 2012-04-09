@@ -1,7 +1,5 @@
 (ns dieter.asset.css
-  (:use
-   [dieter.asset :only [register]]
-   [dieter.util :only [slurp-into string-builder]])
+  (:use [dieter.util :only [slurp-into string-builder]])
   (:require [clojure.string :as s]))
 
 (defn compress-css [text]
@@ -23,5 +21,3 @@
     (if (:compress options)
       (compress-css (:content this))
       (:content this))))
-
-(register "css" map->Css)

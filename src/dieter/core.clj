@@ -1,20 +1,28 @@
 (ns dieter.core
-  (:require
-   dieter.asset.javascript
-   dieter.asset.css
-   dieter.asset.static
-   dieter.asset.less
-   dieter.asset.coffeescript
-   dieter.asset.hamlcoffee
-   dieter.asset.manifest
-   [clojure.java.io :as io])
+  (:require [clojure.java.io :as io])
   (:use
-   dieter.asset
    dieter.settings
+   dieter.asset
    [dieter.path :only [find-file cached-file-path make-relative-to-cache
                        uncachify-filename cache-busting-path write-file]]
-   [ring.middleware.file :only [wrap-file]]
-   [ring.middleware.file-info :only [wrap-file-info]]))
+   [ring.middleware.file      :only [wrap-file]]
+   [ring.middleware.file-info :only [wrap-file-info]]
+   [dieter.asset.javascript   :only [map->Js]]
+   [dieter.asset.css          :only [map->Css]]
+   [dieter.asset.static       :only [map->Static]]
+   [dieter.asset.less         :only [map->Less]]
+   [dieter.asset.coffeescript :only [map->Coffee]]
+   [dieter.asset.hamlcoffee   :only [map->HamlCoffee]]
+   [dieter.asset.manifest     :only [map->Dieter]]))
+
+(register :default map->Static)
+(register "coffee" map->Coffee)
+(register "cs"     map->Coffee)
+(register "css"    map->Css)
+(register "dieter" map->Dieter)
+(register "hamlc"  map->HamlCoffee)
+(register "js"     map->Js)
+(register "less"   map->Less)
 
 (defn write-to-cache [content requested-path]
   (let [dest (io/file (cached-file-path requested-path content))]

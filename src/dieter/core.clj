@@ -38,7 +38,7 @@
    "cs" "text/javascript"})
 
 (defn find-and-cache-asset [requested-path]
-  (if-let [file (find-file requested-path (asset-root))]
+  (when-let [file (find-file requested-path (asset-root))]
     (-> file
         (make-asset)
         (read-asset *settings*)

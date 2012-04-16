@@ -1,4 +1,4 @@
-(defproject lein-dieter-precompile "0.1.1"
+(defproject lein-dieter-precompile "0.1.2"
   :description "Precompile dieter assets from the command line"
   :dev-dependencies [[dieter "0.1.3"]
                      [org.clojure/clojure "1.2.1"]]

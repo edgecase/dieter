@@ -2,7 +2,8 @@
   (:use dieter.settings)
   (:require
    [clojure.string :as cstr]
-   [clojure.java.io :as io])
+   [clojure.java.io :as io]
+   [fs])
   (:import
    [java.security MessageDigest]))
 

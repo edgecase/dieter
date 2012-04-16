@@ -84,3 +84,9 @@ static file middleware can be rooted at cache-root"
 (defmethod cache-busting-path :production [settings path]
   (or (get @cached-paths path)
       (add-md5 path (str (java.util.Date.)))))
+
+(defn relative-path [root file]
+  (let [absroot (fs/abspath root)
+        absfile (fs/abspath file)
+        root-length (count absroot)]
+    (.substring absfile (inc root-length))))

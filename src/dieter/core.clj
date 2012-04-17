@@ -110,10 +110,10 @@ ex. (link-to-asset \"javascripts/app.js\") => \"/assets/javascripts/app-12345678
    (cache-root)
    (fn [cached]
      (let [cached (->> cached
-                       (relative-path (cache-root)))
+                       (relative-path (cache-root))
+                       (str "/"))
            uncached (->> cached
-                         (uncachify-filename)
-                         (str "/"))]
+                         (uncachify-filename))]
        (add-cached-path uncached cached)))))
 
 (defn init [options]

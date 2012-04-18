@@ -1,5 +1,7 @@
-(ns leiningen.dieter-precompile-runtime
-  "Precompile dieter assets"
+(ns leiningen.dieter-precompile.runtime
+  ;; dont use leiningen as the namespace, so that it doesn't appear in the
+  ;; "help" section.
+  "Precompile dieter assets, run-time portion"
   (:require [clojure.string :as string]
             [dieter.core]))
 

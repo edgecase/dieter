@@ -7,7 +7,7 @@
   [project]
   (eval-in-project
    project
-   `(do (leiningen.dieter-precompile-runtime/precompile '~project))
+   `(do (leiningen.dieter-precompile.runtime/precompile '~project))
    nil
    nil
-   `(require 'leiningen.dieter-precompile-runtime)))
+   `(require 'leiningen.dieter-precompile.runtime)))

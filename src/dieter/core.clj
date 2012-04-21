@@ -71,6 +71,7 @@
 
 (defn precompile [options]
   (with-options options
+    (-> options :cache-root (fs/join "assets") fs/deltree)
     (foreach-file
      (fs/join (asset-root) "assets")
      (fn [filename]

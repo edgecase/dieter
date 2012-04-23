@@ -71,7 +71,7 @@
 
 (defn precompile [options]
   (with-options options
-    (-> options :cache-root (fs/join "assets") fs/deltree)
+    (-> *settings* :cache-root (fs/join "assets") fs/deltree)
     (foreach-file
      (fs/join (asset-root) "assets")
      (fn [filename]
@@ -86,15 +86,15 @@
 
 (defn asset-pipeline [app & [options]]
   (with-options options
-    (if (-> options :cache-mode (= :production))
+    (if (-> *settings* :cache-mode (= :production))
       (-> app
           (wrap-file (cache-root))
-          (asset-builder options)
+          (asset-builder *settings*)
           (wrap-file (cache-root))
           (wrap-file-info known-mime-types))
       (-> app
           (wrap-file (cache-root))
-          (asset-builder options)
+          (asset-builder *settings*)
           (wrap-file-info known-mime-types)))))
 
 (defn link-to-asset [path & [options]]

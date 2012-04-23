@@ -86,7 +86,7 @@
 
 (defn asset-pipeline [app & [options]]
   (with-options options
-    (if (-> *settings* :cache-mode (= :production))
+    (if (= :production (:cache-mode *settings*))
       (-> app
           (wrap-file (cache-root))
           (asset-builder *settings*)

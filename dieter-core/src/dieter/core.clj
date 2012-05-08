@@ -79,6 +79,7 @@
                  (relative-path (asset-root))
                  (str "./")
                  (find-and-cache-asset))
+            (print ".")
             (catch Exception e
               (println "Not built" filename)))))
     nil))

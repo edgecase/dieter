@@ -37,15 +37,15 @@ Duplicates are included only once, the first time they are referenced.
 Files not found are not returned and no error is indicated.
 We should probably consider outputting some kind of warning in that case."
   [manifest-file]
-  (distinct-by #(.getCanonicalPath %)
-               (filter #(and (not (nil? %))
-                             (not (.isDirectory %)))
-                       (flatten
-                        (map (fn [filename]
-                               (if (re-matches #".*/$" filename)
-                                 (file-seq (search-dir filename (.getParentFile manifest-file)))
-                                 (find-file filename (.getParentFile manifest-file))))
-                             (load-manifest manifest-file))))))
+  (->> (load-manifest manifest-file)
+       (map (fn [filename]
+              (if (re-matches #".*/$" filename)
+                (file-seq (search-dir filename (.getParentFile manifest-file)))
+                (find-file filename (.getParentFile manifest-file)))))
+       flatten
+       (filter #(and (not (nil? %))
+                     (not (.isDirectory %))))
+       (distinct-by #(.getCanonicalPath %))))
 
 (defrecord Dieter [file]
   dieter.asset.Asset

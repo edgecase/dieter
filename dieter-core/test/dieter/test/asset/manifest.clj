@@ -39,3 +39,9 @@
 
     (testing "multiple requires are included only once, the first occurrence"
       (is (has-text? text "var file = \"/lib/framework.js\"" 1)))))
+
+
+(deftest test-emacs-file
+  (let [manifest (io/file "test/fixtures/assets/javascripts/emacs_test/emacs.js.dieter")
+        files (manifest-files manifest)]
+    (is (not (contains-file? files (io/file "test/fixtures/assets/javascripts/emacs_test/nested/.#testfile.coffee"))))))

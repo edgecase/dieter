@@ -1,12 +1,13 @@
 (ns dieter.asset.less
   (:use
-   [dieter.rhino :only (with-scope make-pool call)])
+   [dieter.rhino :only (with-scope call)])
   (:require
    dieter.asset.css
+   [dieter.pools :as pools]
    [clojure.string :as cstr]
    [dieter.asset :as asset]))
 
-(def pool (make-pool))
+(def pool (pools/make-pool))
 
 (defn preprocess-less [file]
   (with-scope pool ["less-wrapper.js" "less-rhino-1.2.1.js"]

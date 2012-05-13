@@ -1,10 +1,11 @@
 (ns dieter.asset.coffeescript
   (:require
    dieter.asset
-   dieter.asset.javascript)
-  (:use [dieter.rhino :only (call with-scope make-pool)]))
+   dieter.asset.javascript
+   [dieter.pools :as pools])
+  (:use [dieter.rhino :only (call with-scope)]))
 
-(def pool (make-pool))
+(def pool (pools/make-pool))
 
 (defn compile-coffeescript [input filename]
   (with-scope pool ["coffee-script.js" "coffee-wrapper.js"]

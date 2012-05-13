@@ -1,13 +1,14 @@
 (ns dieter.asset.hamlcoffee
-  (:use dieter.rhino)
-  (:require
-   dieter.asset.javascript
-   [clojure.string :as cstr]))
+  (:require [dieter.rhino :as rhino]
+            [dieter.pools :as pools]
+            dieter.asset.javascript
+            [clojure.string :as cstr])
+  (:use [dieter.rhino :only (with-scope call)]))
 
 (defn filename-without-ext [file]
   (cstr/replace (.getName file) #"\..*$" ""))
 
-(def pool (make-pool))
+(def pool (pools/make-pool))
 
 (defn preprocess-hamlcoffee [file]
   (with-scope pool ["coffee-script.js"

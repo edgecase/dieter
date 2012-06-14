@@ -2,7 +2,8 @@
   (:use dieter.settings)
   (:require
    [clojure.string :as cstr]
-   [clojure.java.io :as io])
+   [clojure.java.io :as io]
+   [fs])
   (:import
    [java.security MessageDigest]))
 
@@ -48,7 +49,7 @@ static file middleware can be rooted at cache-root"
     (cond
      (re-matches #".*/$" relative-path) (io/file start-dir relative-path)
      relative-parent (io/file start-dir relative-parent)
-     :else start-dir)))
+     :else (io/file start-dir))))
 
 (defn find-in-files [filename files]
   (let [[_ basename] (re-matches #"(^.*?)(?:\.\w+)?$" filename)
@@ -84,3 +85,9 @@ static file middleware can be rooted at cache-root"
 (defmethod cache-busting-path :production [settings path]
   (or (get @cached-paths path)
       (add-md5 path (str (java.util.Date.)))))
+
+(defn relative-path [root file]
+  (let [absroot (fs/abspath root)
+        absfile (fs/abspath file)
+        root-length (count absroot)]
+    (.substring absfile (inc root-length))))

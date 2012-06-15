@@ -1,6 +1,7 @@
 (ns dieter.core
   (:require [clojure.java.io :as io]
-            [fs])
+            [fs]
+            [ring.util.response :as res])
   (:use
    dieter.settings
    dieter.asset
@@ -15,7 +16,9 @@
    [dieter.asset.less         :only [map->Less]]
    [dieter.asset.coffeescript :only [map->Coffee]]
    [dieter.asset.hamlcoffee   :only [map->HamlCoffee]]
-   [dieter.asset.manifest     :only [map->Dieter]]))
+   [dieter.asset.manifest     :only [map->Dieter]])
+  (:import java.io.File))
+
 
 (register :default map->Static)
 (register "coffee" map->Coffee)
@@ -38,6 +41,24 @@
    "hamlc" "text/javascript"
    "coffee" "text/javascript"
    "cs" "text/javascript"})
+
+(defn dieter-file-type [filename]
+  (cond
+   (re-matches #".*css-[\da-f]{32}\.dieter$" filename) "text/css"
+   (re-matches #".*js-[\da-f]{32}\.dieter$" filename) "text/javascript"))
+
+(defn wrap-dieter-mime-types
+  [app]
+  (fn [req]
+    (let [{:keys [headers body] :as response} (app req)]
+      (if (instance? File body)
+        (let [filename (.getPath body)
+              file-type (dieter-file-type filename)]
+          (if file-type
+            (-> response
+                (res/content-type file-type))
+            response))
+        response))))
 
 (defn find-and-cache-asset [requested-path]
   (when-let [file (find-file requested-path (asset-root))]
@@ -92,10 +113,13 @@
           (wrap-file (cache-root))
           (asset-builder *settings*)
           (wrap-file (cache-root))
-          (wrap-file-info known-mime-types))
+          (wrap-file-info known-mime-types)
+          (wrap-dieter-mime-types))
       (-> app
           (wrap-file (cache-root))
           (asset-builder *settings*)
+          (wrap-file-info known-mime-types)
+          (wrap-dieter-mime-types)
           (wrap-file-info known-mime-types)))))
 
 (defn link-to-asset [path & [options]]

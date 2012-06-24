@@ -1,9 +1,9 @@
 (ns dieter.asset.hamlcoffee
-  (:require [dieter.rhino :as rhino]
+  (:require [dieter.jsengine :as jsengine]
             [dieter.pools :as pools]
             dieter.asset.javascript
             [clojure.string :as cstr])
-  (:use [dieter.rhino :only (with-scope call)]))
+  (:use [dieter.jsengine :only (with-scope call)]))
 
 (defn filename-without-ext [file]
   (cstr/replace (.getName file) #"\..*$" ""))

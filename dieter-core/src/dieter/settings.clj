@@ -2,7 +2,7 @@
   (:require [clojure.java.io :as io]))
 
 (defonce ^:dynamic *settings*
-  {:engine     :rhino
+  {:engine     :v8
    :compress   false
    :asset-root "resources"
    :cache-root "resources/asset-cache"

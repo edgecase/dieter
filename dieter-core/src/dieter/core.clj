@@ -9,6 +9,7 @@
                        relative-path]]
    [ring.middleware.file      :only [wrap-file]]
    [ring.middleware.file-info :only [wrap-file-info]]
+   [dieter.middleware.expires :only [wrap-expires-never]]
    [dieter.asset.javascript   :only [map->Js]]
    [dieter.asset.css          :only [map->Css]]
    [dieter.asset.static       :only [map->Static]]
@@ -92,7 +93,8 @@
           (wrap-file (cache-root))
           (asset-builder *settings*)
           (wrap-file (cache-root))
-          (wrap-file-info known-mime-types))
+          (wrap-file-info known-mime-types)
+          (wrap-expires-never))
       (-> app
           (wrap-file (cache-root))
           (asset-builder *settings*)

@@ -18,4 +18,4 @@
 (defn call [fn-name & args]
   (if (= (:engine settings/*settings*) :rhino)
     (apply rhino/call fn-name args)
-    (v8/call fn-name args)))
+    (apply v8/call fn-name args)))

@@ -26,8 +26,11 @@
 
 
 (defn wrap-file-expires-never
-  "Checks that a file is a cached version, if so, wraps it in wrap-expires-never,
-   otherwise just calls the handler"
+  "Given a root path to the previously cached Dieter resources, check that the request
+   points to something that is a cacheable URL for a precompiled resource. If so, pass
+   the request to the ring file middleware and then set the expiration header, otherwise
+   just pass the request along to the handlers down the chain."
+   
   [app root-path & [opts]]
   (fn [req]
     (let [path (:uri req)

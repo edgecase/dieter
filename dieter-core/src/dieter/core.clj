@@ -10,7 +10,7 @@
                        relative-path]]
    [ring.middleware.file      :only [wrap-file]]
    [ring.middleware.file-info :only [wrap-file-info]]
-   [dieter.middleware.expires :only [wrap-expires-never wrap-file-expires-never]]
+   [dieter.middleware.expires :only [wrap-file-expires-never]]
    [dieter.asset.javascript   :only [map->Js]]
    [dieter.asset.css          :only [map->Css]]
    [dieter.asset.static       :only [map->Static]]
@@ -107,7 +107,13 @@
     nil))
 
 
-(defn asset-pipeline [app & [options]]
+(defn asset-pipeline
+  "Construct the Dieter asset pipeline depending on the :cache-mode option, eventually
+   either loading the data from the cache directory, rendering a new resource and
+   returning that, or passing on the request to the previously existing request
+   handlers in the pipeline."
+  
+  [app & [options]]
   (with-options options
     (if (= :production (:cache-mode *settings*))
       (-> app

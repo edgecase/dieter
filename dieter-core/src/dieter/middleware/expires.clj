@@ -1,6 +1,8 @@
 (ns dieter.middleware.expires
   "Middleware for overriding expiration headers for cached Dieter resources"
-  (:require [ring.util.response :as res])
+  (:require [ring.util.response :as res]
+            [ring.middleware.file :as file]
+            [dieter.path :as path])
   (:import (java.util Date Locale TimeZone)
            java.text.SimpleDateFormat))
 
@@ -18,6 +20,22 @@
   [handler & [opts]]
   (fn [req]
     (if-let [resp (handler req)]
-      (res/header "Expires"
-                  (.format (make-http-format) (Date. (+ (.currentTimeMilis System)
+      (res/header resp "Expires"
+                  (.format (make-http-format) (Date. (+ (System/currentTimeMillis)
                                                         (* 1000 1 365 24 60 60))))))))
+
+
+(defn wrap-file-expires-never
+  "Checks that a file is a cached version, if so, wraps it in wrap-expires-never,
+   otherwise just calls the handler"
+  [app root-path & [opts]]
+  (fn [req]
+    (let [path (:uri req)
+          uncached (path/uncachify-filename path)]
+      (if (and (re-matches #"^/assets/.*" path)
+               (not (= path uncached)))
+        (if-let [resp ((file/wrap-file app root-path) req)]
+          (res/header resp "Expires"
+                      (.format (make-http-format) (Date. (+ (System/currentTimeMillis)
+                                                            (* 1000 1 365 24 60 60))))))
+        (app req)))))

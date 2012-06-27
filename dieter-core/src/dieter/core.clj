@@ -9,7 +9,7 @@
                        relative-path]]
    [ring.middleware.file      :only [wrap-file]]
    [ring.middleware.file-info :only [wrap-file-info]]
-   [dieter.middleware.expires :only [wrap-expires-never]]
+   [dieter.middleware.expires :only [wrap-expires-never wrap-file-expires-never]]
    [dieter.asset.javascript   :only [map->Js]]
    [dieter.asset.css          :only [map->Css]]
    [dieter.asset.static       :only [map->Static]]
@@ -57,7 +57,7 @@
             (let [new-path (make-relative-to-cache (str cached))]
               (add-cached-path path new-path)
               (app (assoc req :uri new-path)))
-            (app req))
+            ((app req)))
           (app req))))))
 
 (defn foreach-file
@@ -92,9 +92,8 @@
       (-> app
           (wrap-file (cache-root))
           (asset-builder *settings*)
-          (wrap-file (cache-root))
-          (wrap-file-info known-mime-types)
-          (wrap-expires-never))
+          (wrap-file-expires-never (cache-root))
+          (wrap-file-info known-mime-types))
       (-> app
           (wrap-file (cache-root))
           (asset-builder *settings*)

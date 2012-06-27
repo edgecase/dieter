@@ -1,0 +1,9 @@
+# t3
+
+T3 projects tests Dieter's integration into ring, and the functionality
+of adding Expire headers on precompiled assets when :cache-mode :production
+is in effect.
+
+## License
+
+Distributed under the Eclipse Public License, the same as Clojure.

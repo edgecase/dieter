@@ -2,7 +2,8 @@
   (:require [clojure.java.io :as io]))
 
 (defonce ^:dynamic *settings*
-  {:compress   false
+  {:engine     :v8
+   :compress   false
    :asset-root "resources"
    :cache-root "resources/asset-cache"
    :cache-mode :development

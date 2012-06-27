@@ -3,7 +3,7 @@
    dieter.asset
    dieter.asset.javascript
    [dieter.pools :as pools])
-  (:use [dieter.rhino :only (call with-scope)]))
+  (:use [dieter.jsengine :only (call with-scope)]))
 
 (def pool (pools/make-pool))
 

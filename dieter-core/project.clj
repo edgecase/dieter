@@ -4,7 +4,7 @@
                  [ring "1.0.1"]
                  [fs "0.11.1"]
                  [com.google.javascript/closure-compiler "r1592"]
-                 [clj-v8 "0.1.0"]
+                 [clj-v8 "0.1.1"]
                  [clj-v8-native "0.1.1"]
                  [rhino/js "1.7R2"]]
   :dev-dependencies [[org.clojure/clojure "1.3.0"]

@@ -1,5 +1,7 @@
 (ns dieter.v8
   (:require [v8.core :as v8engine]
+            [clojure.java.io :as io]
+            [fs]
             [clojure.string :as str]
             [dieter.settings :as settings]))
 
@@ -24,8 +26,12 @@
         jargs (apply str iargs)]
     (str fn-name \( jargs \) \;)))
 
+
 (defn load-vendor [files]
-  (apply str (map (fn [f] (str (slurp (str (settings/asset-root) "/vendor/" f)) "\n")) files)))
+  (apply str (map (fn [f]
+                    (apply str "\n" (line-seq (io/reader (io/resource
+                                               (fs/join "vendor" f))))))
+                  files)))
 
 
 (defn call [fn-name & args]

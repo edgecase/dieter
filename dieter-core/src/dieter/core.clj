@@ -61,7 +61,7 @@
         response))))
 
 (defn find-and-cache-asset [requested-path]
-  (when-let [file (find-file requested-path (asset-root))]
+  (when-let [file (reduce #(or %1 (find-file requested-path %2)) nil (asset-roots))]
     (-> file
         (make-asset)
         (read-asset *settings*)
@@ -93,18 +93,18 @@
 (defn precompile [options]
   (with-options options
     (-> *settings* :cache-root (fs/join "assets") fs/deltree)
-    (foreach-file
-     (fs/join (asset-root) "assets")
-     (fn [filename]
-       (try (->> filename
-                 (relative-path (asset-root))
-                 (str "./")
-                 (find-and-cache-asset))
-            (print ".")
-            (catch Exception e
-              (println "Not built" filename)))))
-    nil))
-
+    (doseq [asset-root (asset-roots)]
+      (foreach-file
+       (fs/join asset-root "assets")
+       (fn [filename]
+         (try (->> filename
+                   (relative-path asset-root)
+                   (str "./")
+                   (find-and-cache-asset))
+              (print ".")
+              (catch Exception e
+                (println "Not built" filename)))))
+      nil)))
 
 (defn asset-pipeline [app & [options]]
   (with-options options
@@ -126,7 +126,7 @@
   "path should start under assets and not contain a leading slash
 ex. (link-to-asset \"javascripts/app.js\") => \"/assets/javascripts/app-12345678901234567890123456789012.js\""
   (with-options options
-    (if-let [file (find-file (str "./assets/" path) (asset-root))]
+    (if-let [file (reduce #(or %1 (find-file (str "./assets/" path) %2)) nil (asset-roots))]
       (cache-busting-path *settings* (str "/assets/" path)))))
 
 (defn load-precompiled-assets

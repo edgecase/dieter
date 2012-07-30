@@ -19,6 +19,14 @@
         (swap! cached-paths assoc "/assets/javascripts/app.js" "/assets/javascripts/app-12345678901234567890af1234567890.js")
         (is (= "/assets/javascripts/app-12345678901234567890af1234567890.js" (link-to-asset "javascripts/app.js" opts)))))))
 
+(deftest test-link-to-asset-in-secondary-dir
+  (testing "development mode"
+    (let [opts {:cache-mode :development :asset-roots ["test/fixtures", "test/fixtures/more_assets"] :cache-root "test/fixtures/asset-cache"}]
+      (is (= "/assets/javascripts/app.js" (link-to-asset "javascripts/app.js" opts)))
+      (is (= "/assets/images/Elsa.jpg" (link-to-asset "images/Elsa.jpg" opts)))
+      (is (nil? (link-to-asset "javascripts/dontfindme.js" opts)))
+      (is (= "/assets/javascripts/manifest.js" (link-to-asset "javascripts/manifest.js" opts))))))
+
 (deftest test-write-to-cache
   (binding [*settings* (merge *settings* {:asset-root "test/fixtures", :cache-root "test/fixtures/asset-cache"})]
     (let [content "var aString = 'of javascript';"

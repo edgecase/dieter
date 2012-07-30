@@ -18,11 +18,16 @@
 (defn add-cached-path [path new-path]
   (swap! cached-paths assoc path new-path))
 
-(defn asset-root []
-  (:asset-root *settings*))
+(defn asset-roots []
+  (or 
+    (:asset-roots *settings*)  ;; Plural
+    (when-let [ar (:asset-root *settings*)] [ar]))) ;; Fallback
 
-(defn absolute-asset-root []
-  (.getCanonicalPath (io/file (asset-root))))
+(defn- abs-path [path]
+  (.getCanonicalPath (io/file path)))
+
+(defn absolute-asset-roots []
+  (map abs-path (asset-roots)))
 
 (defn cache-root []
   (:cache-root *settings*))

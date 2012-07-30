@@ -58,7 +58,7 @@ In order to include links to your assets you may use the link-to-asset function.
 ## Configuration Options
 
     :compress   false
-    :asset-root "resources"             ; must have a folder called 'assets'
+    :asset-roots ["resources"]          ; must have a folder called 'assets'
     :cache-root "resources/asset-cache" ; compiled assets are cached here
     :cache-mode :development            ; or :production. :development disables cacheing
     :log-level  :normal                 ; or :quiet

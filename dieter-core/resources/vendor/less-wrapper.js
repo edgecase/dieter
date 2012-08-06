@@ -13,15 +13,22 @@ function readFile(filename){
 }
 
 function loadStyleSheet(sheet, callback, reload, remaining) {
-  var sheetName = startingName.slice(0, startingName.lastIndexOf('/') + 1) + sheet.href;
-  var input = readFile(sheetName);
-  var parser = new less.Parser();
-  parser.parse(input, function (e, root) {
-    if (e) throw e
-    callback(e, root, sheet);
-  });
-
-  // callback({}, sheet, { local: true, remaining: remaining });
+    var endOfPath = Math.max(startingName.lastIndexOf('/'), startingName.lastIndexOf('\\')),
+        sheetName = startingName.slice(0, endOfPath + 1) + sheet.href,
+        input = readFile(sheetName);
+    var parser = new less.Parser({
+        paths: [sheet.href.replace(/[\w\.-]+$/, '')]
+    });
+    parser.parse(input, function (e, root) {
+        if (e) {
+            return error(e, sheetName);
+        }
+        try {
+            callback(e, root, sheet, { local: false, lastModified: 0, remaining: remaining });
+        } catch(e) {
+            error(e, sheetName);
+        }
+    });
 }
 
 function format_error(e) {
@@ -32,23 +39,28 @@ function format_error(e) {
     "\nEXTRACT: " + e.extract
 }
 
-function compileLess(filename) {
-  // save it for resolving imports
-  startingName = filename;
+function compileLess(name) {
+    var output,
+        compress = false,
+        i;
 
-  var lessResult;
+    startingName = name;
+    path = name.split("/");path.pop();path=path.join("/")
 
-  var input = readFile(filename);
+    var input = readFile(name);
 
-  try {
-    var parser = new less.Parser();
-    parser.parse(input, function (e, root) {
-      if (e)
-        throw(e);
+    if (!input) {
+        print('lesscss: couldn\'t open file ' + name);
+    }
 
-      // Write to an in-scope variable that can be returned.
-      lessResult = root.toCSS();
-    });
-  } catch (e) { throw(format_error(e)); }
-  return lessResult;
-}
+    var result;
+    try {
+        var parser = new less.Parser();
+        parser.parse(input, function (e, root) {
+            if (e) { throw(e); }
+            result = root.toCSS();
+        });
+    }
+    catch(e) { throw(format_error(e)); }
+    return result;
+};

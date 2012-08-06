@@ -10,7 +10,7 @@
 (def pool (pools/make-pool))
 
 (defn preprocess-less [file]
-  (with-scope pool ["less-wrapper.js" "less-rhino-1.2.1.js"]
+  (with-scope pool ["less-wrapper.js" "less-rhino-1.3.0.js"]
     (call "compileLess" (.getCanonicalPath file))))
 
 (defrecord Less [file]

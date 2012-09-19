@@ -11,10 +11,10 @@
             (io/file "test/fixtures/assets/javascripts/test.js.coffee")))))
   (testing "syntax error"
     (try
-      (preprocess-coffeescript
-       (io/file "test/fixtures/assets/javascripts/bad.js.coffee"))
-      (is false) ; must throw
-      (catch Exception e
-        (is (has-text? (.toString e) "on line 2"))
-        (is (has-text? (.toString e) "bad.js.coffee"))
-        (is (has-text? (.toString e) "unmatched ]"))))))
+      (let [output (preprocess-coffeescript
+                    (io/file "test/fixtures/assets/javascripts/bad.js.coffee"))]
+
+        (is (has-text? (.toString output) "throw"))
+        (is (has-text? (.toString output) "on line 2"))
+        (is (has-text? (.toString output) "bad.js.coffee"))
+        (is (has-text? (.toString output) "unmatched ]"))))))

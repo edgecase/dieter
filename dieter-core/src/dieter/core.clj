@@ -1,6 +1,6 @@
 (ns dieter.core
   (:require [clojure.java.io :as io]
-            [fs]
+            [fs.core :as fs]
             [ring.util.response :as res])
   (:use
    dieter.settings
@@ -87,15 +87,14 @@
    dir
    (fn [root _ files]
      (doseq [file files]
-       (f (->> file
-               (fs/join root)))))))
+       (f (fs/file root file))))))
 
 (defn precompile [options]
   (with-options options
-    (-> *settings* :cache-root (fs/join "assets") fs/deltree)
+    (-> *settings* :cache-root (fs/file "assets") fs/delete-dir)
     (doseq [asset-root (asset-roots)]
       (foreach-file
-       (fs/join asset-root "assets")
+       (fs/file asset-root "assets")
        (fn [filename]
          (try (->> filename
                    (relative-path asset-root)

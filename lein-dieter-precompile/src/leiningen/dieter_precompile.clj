@@ -1,6 +1,6 @@
 (ns leiningen.dieter-precompile
   "Precompile dieter assets"
-  (:use [leiningen.compile :only (eval-in-project)]))
+  (:use [leiningen.core.eval :only (eval-in-project)]))
 
 
 (defn dieter-precompile
@@ -8,6 +8,4 @@
   (eval-in-project
    project
    `(do (leiningen.dieter-precompile.runtime/precompile '~project))
-   nil
-   nil
    `(require 'leiningen.dieter-precompile.runtime)))

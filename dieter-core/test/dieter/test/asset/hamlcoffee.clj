@@ -6,11 +6,12 @@
 
 (defn wrap [name output]
   "The hamlcoffee compiler wraps the code, so we need to wrap our expected output"
-  (str "(function() {\n  var _ref;\n  if ((_ref = window.HAML) == null) {\n    window.HAML = {};\n  }\n  window.HAML['"
+  (str "(function() {\n  var _ref;\n\n  if ((_ref = window.HAML) == null) {\n    window.HAML = {};\n  }\n\n  window.HAML['"
        name
        "'] = function(context) {\n    return (function() {\n      var $o;\n      $o = [];\n      $o.push(\""
+
        output
-       "\");\n      return $o.join(\"\\n\").replace(/\\s(\\w+)='true'/mg, ' $1').replace(/\\s(\\w+)='false'/mg, '');\n    }).call(context);\n  };\n}).call(this);\n"))
+       "\");\n      return $o.join(\"\\n\").replace(/\\s(\\w+)='\223true'/mg, ' $1').replace(/\\s(\\w+)='\223false'/mg, '');\n    }).call(context);\n  };\n\n}).call(this);\n"))
 
 (deftest test-preprocess-hamlcoffee
   (testing "basic hamlc file"

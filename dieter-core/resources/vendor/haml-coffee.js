@@ -363,6 +363,8 @@ require.define("/haml-coffee.js", function (require, module, exports, __dirname,
 
   module.exports = HamlCoffee = (function() {
 
+    HamlCoffee.VERSION = '1.4.1';
+
     function HamlCoffee(options) {
       var _base, _base1, _base2, _base3, _base4, _base5, _base6, _base7, _base8, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8;
       this.options = options != null ? options : {};
@@ -415,7 +417,9 @@ require.define("/haml-coffee.js", function (require, module, exports, __dirname,
         throw "Indentation error in line " + this.lineNumber;
       }
       if ((this.currentIndent - this.previousIndent) / this.tabSize > 1) {
-        throw "Block level too deep in line " + this.lineNumber;
+        if (!this.node.isCommented()) {
+          throw "Block level too deep in line " + this.lineNumber;
+        }
       }
       return this.delta = this.previousBlockLevel - this.currentBlockLevel;
     };
@@ -496,7 +500,7 @@ require.define("/haml-coffee.js", function (require, module, exports, __dirname,
       if (source == null) {
         source = '';
       }
-      this.line_number = this.previousIndent = this.tabSize = this.currentBlockLevel = this.previousBlockLevel = 0;
+      this.lineNumber = this.previousIndent = this.tabSize = this.currentBlockLevel = this.previousBlockLevel = 0;
       this.currentCodeBlockLevel = this.previousCodeBlockLevel = 0;
       this.node = null;
       this.stack = [];
@@ -532,17 +536,17 @@ require.define("/haml-coffee.js", function (require, module, exports, __dirname,
           if (/^\s*$/.test(line)) {
             continue;
           }
-          while (/^[%.#].*[{(]/.test(expression) && !/^(\s*)[-=&!~.%#<]/.test(lines[0]) && /([-\w]+[\w:-]*\w?)\s*=|('\w+[\w:-]*\w?')\s*=|("\w+[\w:-]*\w?")\s*=|(\w+[\w:-]*\w?):|('[-\w]+[\w:-]*\w?'):|("[-\w]+[\w:-]*\w?"):|:(\w+[\w:-]*\w?)\s*=>|:?'([-\w]+[\w:-]*\w?)'\s*=>|:?"([-\w]+[\w:-]*\w?)"\s*=>/.test(lines[0])) {
+          while (/^[%.#].*[{(]/.test(expression) && !/^(\s*)[-=&!~.%#</]/.test(lines[0]) && /([-\w]+[\w:-]*\w?)\s*=|('\w+[\w:-]*\w?')\s*=|("\w+[\w:-]*\w?")\s*=|(\w+[\w:-]*\w?):|('[-\w]+[\w:-]*\w?'):|("[-\w]+[\w:-]*\w?"):|:(\w+[\w:-]*\w?)\s*=>|:?'([-\w]+[\w:-]*\w?)'\s*=>|:?"([-\w]+[\w:-]*\w?)"\s*=>/.test(lines[0])) {
             attributes = lines.shift();
             expression = expression.replace(/(\s)+\|\s*$/, '');
             expression += ' ' + attributes.match(/^\s*(.*?)(\s+\|\s*)?$/)[1];
-            this.line_number++;
+            this.lineNumber++;
           }
           if (expression.match(/(\s)+\|\s*$/)) {
             expression = expression.replace(/(\s)+\|\s*$/, ' ');
             while ((_ref = lines[0]) != null ? _ref.match(/(\s)+\|$/) : void 0) {
               expression += lines.shift().match(/^(\s*)(.*)/)[2].replace(/(\s)+\|\s*$/, '');
-              this.line_number++;
+              this.lineNumber++;
             }
           }
           this.currentIndent = ws.length;
@@ -556,7 +560,7 @@ require.define("/haml-coffee.js", function (require, module, exports, __dirname,
           this.previousBlockLevel = this.currentBlockLevel;
           this.previousIndent = this.currentIndent;
         }
-        this.line_number++;
+        this.lineNumber++;
       }
       return this.evaluate(this.root);
     };
@@ -611,7 +615,7 @@ require.define("/haml-coffee.js", function (require, module, exports, __dirname,
         if (this.options.customHtmlEscape) {
           fn += "$e = " + this.options.customHtmlEscape + "\n";
         } else {
-          fn += "$e = (text, escape) ->\n  \"\#{ text }\"\n  .replace(/&/g, '&amp;')\n  .replace(/</g, '&lt;')\n  .replace(/>/g, '&gt;')\n  .replace(/\'/g, '&apos;')\n  .replace(/\"/g, '&quot;')\n";
+          fn += "$e = (text, escape) ->\n  \"\#{ text }\"\n  .replace(/&/g, '&amp;')\n  .replace(/</g, '&lt;')\n  .replace(/>/g, '&gt;')\n  .replace(/\'/g, '&#39;')\n  .replace(/\"/g, '&quot;')\n";
         }
       }
       if (code.indexOf('$c') !== -1) {
@@ -837,6 +841,17 @@ require.define("/nodes/node.js", function (require, module, exports, __dirname, 
       }
     };
 
+    Node.prototype.isCommented = function() {
+      if (this.constructor.name === 'Comment') {
+        return true;
+      }
+      if (this.parentNode) {
+        return this.parentNode.isCommented();
+      } else {
+        return false;
+      }
+    };
+
     Node.prototype.markText = function(text, escape) {
       if (escape == null) {
         escape = false;
@@ -966,7 +981,7 @@ require.define("/util/text.js", function (require, module, exports, __dirname, _
       if (!text) {
         return '';
       }
-      return text.replace(/"/g, '\\"').replace(/\\\\\"/g, '"');
+      return text.replace(/"/g, '\\"').replace(/\\\\\"/g, '\\"');
     },
     unescapeQuotes: function(text) {
       if (!text) {
@@ -1136,7 +1151,7 @@ require.define("/nodes/haml.js", function (require, module, exports, __dirname, 
         tag: tag.tag,
         id: id,
         classes: classes,
-        text: tag.text,
+        text: escapeQuotes(tag.text),
         attributes: attributes,
         assignment: tag.assignment
       };
@@ -1235,32 +1250,66 @@ require.define("/nodes/haml.js", function (require, module, exports, __dirname, 
     };
 
     Haml.prototype.parseAttributes = function(exp) {
-      var attributes, hasDataAttribute, inDataAttribute, key, keyValue, keys, pairs, quoted, type, value, _ref, _ref1;
+      var attributes, ch, endPos, hasDataAttribute, inDataAttribute, key, keyValue, keys, level, marker, markers, pairs, pos, quoted, start, startPos, type, value, _i, _j, _len, _ref, _ref1, _ref2;
       attributes = {};
       if (exp === void 0) {
         return attributes;
       }
       type = exp.substring(0, 1);
       exp = exp.replace(/(=|:|=>)\s*('([^\\']|\\\\|\\')*'|"([^\\"]|\\\\|\\")*")/g, function(match, type, value) {
-        return type + (value != null ? value.replace(/(:|=|=>)/, '\u0090$1') : void 0);
+        return type + (value != null ? value.replace(/(:|=|=>)/g, '\u0090$1') : void 0);
       });
+      level = 0;
+      start = 0;
+      markers = [];
+      if (type === '(') {
+        startPos = 1;
+        endPos = exp.length - 1;
+      } else {
+        startPos = 0;
+        endPos = exp.length;
+      }
+      for (pos = _i = startPos; startPos <= endPos ? _i < endPos : _i > endPos; pos = startPos <= endPos ? ++_i : --_i) {
+        ch = exp[pos];
+        if (ch === '(') {
+          level += 1;
+          start = pos;
+        }
+        if (ch === ')') {
+          if (level === 1) {
+            if (start !== 0 && pos - start !== 1) {
+              markers.push({
+                start: start,
+                end: pos
+              });
+            }
+          } else {
+            level -= 1;
+          }
+        }
+      }
+      _ref = markers.reverse();
+      for (_j = 0, _len = _ref.length; _j < _len; _j++) {
+        marker = _ref[_j];
+        exp = exp.substring(0, marker.start) + exp.substring(marker.start, marker.end).replace(/(:|=|=>)/g, '\u0090$1') + exp.substring(marker.end);
+      }
       switch (type) {
         case '(':
           keys = /\(\s*([-\w]+[\w:-]*\w?)\s*=|\s+([-\w]+[\w:-]*\w?)\s*=|\(\s*('\w+[\w:-]*\w?')\s*=|\s+('\w+[\w:-]*\w?')\s*=|\(\s*("\w+[\w:-]*\w?")\s*=|\s+("\w+[\w:-]*\w?")\s*=/g;
           break;
         case '{':
-          keys = /[{,]\s*(\w+[\w:-]*\w?):|[{,]\s*('[-\w]+[\w:-]*\w?'):|[{,]\s*("[-\w]+[\w:-]*\w?"):|[{,]\s*:(\w+[\w:-]*\w?)\s*=>|[{,]\s*:?'([-\w]+[\w:-]*\w?)'\s*=>|[{,]\s*:?"([-\w]+[\w:-]*\w?)"\s*=>/g;
+          keys = /[{,]\s*(\w+[\w:-]*\w?)\s*:|[{,]\s*('[-\w]+[\w:-]*\w?')\s*:|[{,]\s*("[-\w]+[\w:-]*\w?")\s*:|[{,]\s*:(\w+[\w:-]*\w?)\s*=>|[{,]\s*:?'([-\w]+[\w:-]*\w?)'\s*=>|[{,]\s*:?"([-\w]+[\w:-]*\w?)"\s*=>/g;
       }
       pairs = exp.split(keys).filter(Boolean);
       inDataAttribute = false;
       hasDataAttribute = false;
       while (pairs.length) {
         keyValue = pairs.splice(0, 2);
-        key = (_ref = keyValue[0]) != null ? _ref.replace(/^\s+|\s+$/g, '').replace(/^:/, '') : void 0;
+        key = (_ref1 = keyValue[0]) != null ? _ref1.replace(/^\s+|\s+$/g, '').replace(/^:/, '') : void 0;
         if (quoted = key.match(/^("|')(.*)\1$/)) {
           key = quoted[2];
         }
-        value = (_ref1 = keyValue[1]) != null ? _ref1.replace(/^\s+|[\s,]+$/g, '').replace(/\u0090/, '') : void 0;
+        value = (_ref2 = keyValue[1]) != null ? _ref2.replace(/^\s+|[\s,]+$/g, '').replace(/\u0090/g, '') : void 0;
         if (key === 'data') {
           inDataAttribute = true;
           hasDataAttribute = true;
@@ -1372,7 +1421,7 @@ require.define("/nodes/haml.js", function (require, module, exports, __dirname, 
     };
 
     Haml.prototype.quoteAndEscapeAttributeValue = function(value, code) {
-      var quoted, result;
+      var escaped, hasDoubleQuotes, hasInterpolation, hasSingleQuotes, quoted, result, token, tokens, _i, _len;
       if (code == null) {
         code = false;
       }
@@ -1382,20 +1431,90 @@ require.define("/nodes/haml.js", function (require, module, exports, __dirname, 
       if (quoted = value.match(/^("|')(.*)\1$/)) {
         value = quoted[2];
       }
-      if (code) {
-        if (value.indexOf('#{') === -1) {
-          result = "'" + value + "'";
+      tokens = this.splitInterpolations(value);
+      hasSingleQuotes = false;
+      hasDoubleQuotes = false;
+      hasInterpolation = false;
+      for (_i = 0, _len = tokens.length; _i < _len; _i++) {
+        token = tokens[_i];
+        if (token.slice(0, 2) === '#{') {
+          hasInterpolation = true;
         } else {
-          result = "\"" + value + "\"";
+          if (!hasSingleQuotes) {
+            hasSingleQuotes = token.indexOf("'") !== -1;
+          }
+          if (!hasDoubleQuotes) {
+            hasDoubleQuotes = token.indexOf('"') !== -1;
+          }
+        }
+      }
+      if (code) {
+        if (hasInterpolation) {
+          result = "\"" + (tokens.join('')) + "\"";
+        } else {
+          result = "'" + (tokens.join('')) + "'";
         }
       } else {
-        if (value.indexOf('#{') === -1) {
-          result = "'" + (value.replace(/'/g, '\\\"')) + "'";
-        } else {
-          result = "'" + value + "'";
+        if (!hasDoubleQuotes && !hasSingleQuotes) {
+          result = "'" + (tokens.join('')) + "'";
+        }
+        if (hasSingleQuotes && !hasDoubleQuotes) {
+          result = "\\\"" + (tokens.join('')) + "\\\"";
+        }
+        if (hasDoubleQuotes && !hasSingleQuotes) {
+          escaped = (function() {
+            var _j, _len1, _results;
+            _results = [];
+            for (_j = 0, _len1 = tokens.length; _j < _len1; _j++) {
+              token = tokens[_j];
+              _results.push(escapeQuotes(token));
+            }
+            return _results;
+          })();
+          result = "'" + (escaped.join('')) + "'";
+        }
+        if (hasSingleQuotes && hasDoubleQuotes) {
+          escaped = (function() {
+            var _j, _len1, _results;
+            _results = [];
+            for (_j = 0, _len1 = tokens.length; _j < _len1; _j++) {
+              token = tokens[_j];
+              _results.push(escapeQuotes(token).replace(/'/g, '&#39;'));
+            }
+            return _results;
+          })();
+          result = "'" + (escaped.join('')) + "'";
         }
       }
       return result;
+    };
+
+    Haml.prototype.splitInterpolations = function(value) {
+      var ch, ch2, level, pos, quoted, start, tokens, _i, _ref;
+      level = 0;
+      start = 0;
+      tokens = [];
+      quoted = false;
+      for (pos = _i = 0, _ref = value.length; 0 <= _ref ? _i < _ref : _i > _ref; pos = 0 <= _ref ? ++_i : --_i) {
+        ch = value[pos];
+        ch2 = value.slice(pos, (pos + 1) + 1 || 9e9);
+        if (ch === '{') {
+          level += 1;
+        }
+        if (ch2 === '#{' && level === 0) {
+          tokens.push(value.slice(start, pos));
+          start = pos;
+        }
+        if (ch === '}') {
+          level -= 1;
+          if (level === 0) {
+            tokens.push(value.slice(start, pos + 1 || 9e9));
+            start = pos + 1;
+          }
+        }
+      }
+      tokens.push(value.slice(start, value.length));
+      return tokens.filter(Boolean);
     };
 
     Haml.prototype.buildDocType = function(doctype) {
@@ -1494,11 +1613,13 @@ require.define("/nodes/code.js", function (require, module, exports, __dirname, 
 
 require.define("/nodes/comment.js", function (require, module, exports, __dirname, __filename) {
 (function() {
-  var Comment, Node,
+  var Comment, Node, escapeQuotes,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Node = require('./node');
+
+  escapeQuotes = require('../util/text').escapeQuotes;
 
   module.exports = Comment = (function(_super) {
 
@@ -1520,7 +1641,7 @@ require.define("/nodes/comment.js", function (require, module, exports, __dirnam
           return this.closer = this.markText('<![endif]-->');
         case '\/':
           if (comment) {
-            this.opener = this.markText("<!-- " + comment);
+            this.opener = this.markText("<!-- " + (escapeQuotes(comment)));
             return this.closer = this.markText(' -->');
           } else {
             this.opener = this.markText("<!--");

@@ -45,3 +45,11 @@
   (let [manifest (io/file "test/fixtures/assets/javascripts/emacs_test/emacs.js.dieter")
         files (manifest-files manifest)]
     (is (not (contains-file? files (io/file "test/fixtures/assets/javascripts/emacs_test/nested/.#testfile.coffee"))))))
+
+
+(deftest test-nested-directories
+  (let [manifest (io/file "test/fixtures/assets/javascripts/nested-dirs.js.dieter")
+        files (manifest-files manifest)]
+    (is (contains-file? files (io/file "test/fixtures/assets/javascripts/nested-dirs/nested1/a.js")))
+    (is (contains-file? files (io/file "test/fixtures/assets/javascripts/nested-dirs/nested1/b.js")))
+    (is (contains-file? files (io/file "test/fixtures/assets/javascripts/nested-dirs/nested2/c.js")))))

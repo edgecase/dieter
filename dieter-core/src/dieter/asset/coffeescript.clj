@@ -2,14 +2,18 @@
   (:require
    dieter.asset
    dieter.asset.javascript
-   [dieter.pools :as pools])
+   [dieter.pools :as pools]
+   [clojure.string :as string])
   (:use [dieter.rhino :only (call with-scope)]))
 
 (def pool (pools/make-pool))
 
 (defn compile-coffeescript [input filename]
-  (with-scope pool ["coffee-script.js" "coffee-wrapper.js"]
-    (str (call "compileCoffeeScript" input filename))))
+  (try
+    (with-scope pool ["coffee-script.js" "coffee-wrapper.js"]
+      (str (call "compileCoffeeScript" input filename)))
+    (catch org.mozilla.javascript.JavaScriptException e
+      (format "throw(\"%s\")" (string/replace (.getMessage e) "\"" "\\\"" )))))
 
 (defn preprocess-coffeescript [file]
   (compile-coffeescript (slurp file) (.getCanonicalPath file)))

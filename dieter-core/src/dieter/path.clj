@@ -3,7 +3,7 @@
   (:require
    [clojure.string :as cstr]
    [clojure.java.io :as io]
-   [fs])
+   [fs.core :as fs])
   (:import
    [java.security MessageDigest]))
 
@@ -87,7 +87,7 @@ static file middleware can be rooted at cache-root"
       (add-md5 path (str (java.util.Date.)))))
 
 (defn relative-path [root file]
-  (let [absroot (fs/abspath root)
-        absfile (fs/abspath file)
+  (let [absroot (fs/absolute-path root)
+        absfile (fs/absolute-path file)
         root-length (count absroot)]
     (.substring absfile (inc root-length))))

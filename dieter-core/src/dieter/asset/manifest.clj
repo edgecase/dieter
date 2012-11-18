@@ -43,9 +43,10 @@ We should probably consider outputting some kind of warning in that case."
                 (file-seq (search-dir filename (.getParentFile manifest-file)))
                 (find-file filename (.getParentFile manifest-file)))))
        flatten
-       (filter #(and (not (nil? %))
-                     (not (.isDirectory %))
-                     (not (re-matches #"/.*\.#.*$" (.getCanonicalPath %)))))
+       (remove #(or (nil? %)
+                    (.isDirectory %)
+                    (re-matches #".*\.swp$" (.getCanonicalPath %))
+                    (re-matches #"/.*\.#.*$" (.getCanonicalPath %))))
        (distinct-by #(.getCanonicalPath %))))
 
 (defrecord Dieter [file]

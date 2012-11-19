@@ -1,6 +1,6 @@
 (ns dieter.asset.less
   (:use
-   [dieter.rhino :only (with-scope call)])
+   [dieter.jsengine :only (with-scope call)])
   (:require
    dieter.asset.css
    [dieter.pools :as pools]

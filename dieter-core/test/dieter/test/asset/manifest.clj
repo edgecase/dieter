@@ -46,6 +46,11 @@
         files (manifest-files manifest)]
     (is (not (contains-file? files (io/file "test/fixtures/assets/javascripts/emacs_test/nested/.#testfile.coffee"))))))
 
+(deftest test-vim-file
+  (let [manifest (io/file "test/fixtures/assets/javascripts/vim_test/vim.js.dieter")
+        files (manifest-files manifest)]
+    (is (not (contains-file? files (io/file "test/fixtures/assets/javascripts/vim_test/nested/.testfile.coffee.swp"))))))
+
 
 (deftest test-nested-directories
   (let [manifest (io/file "test/fixtures/assets/javascripts/nested-dirs.js.dieter")

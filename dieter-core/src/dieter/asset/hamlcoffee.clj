@@ -11,8 +11,11 @@
 
 (defn preprocess-hamlcoffee [file]
   (with-scope pool ["coffee-script.js"
+                    ;; imported direct from https://raw.github.com/netzpirat/haml-coffee/master/dist/compiler/hamlcoffee.js
                     "hamlcoffee.js"
-                    "hamlcoffee-assets.js"
+                    "hamlcoffee-assets-rhino-fix.js"
+                    ;; imported direct from https://raw.github.com/netzpirat/haml_coffee_assets/master/lib/js/haml_coffee_assets.js
+                    "haml_coffee_assets.js"
                     "hamlcoffee-wrapper.js"]
     (let [input (slurp file)
           filename (filename-without-ext file)]

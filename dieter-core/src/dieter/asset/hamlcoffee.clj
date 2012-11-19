@@ -11,9 +11,9 @@
 
 (defn preprocess-hamlcoffee [file]
   (with-scope pool ["coffee-script.js"
-                    "haml-coffee.js"
-                    "haml-coffee-assets.js"
-                    "haml-coffee-wrapper.js"]
+                    "hamlcoffee.js"
+                    "hamlcoffee-assets.js"
+                    "hamlcoffee-wrapper.js"]
     (let [input (slurp file)
           filename (filename-without-ext file)]
       (call "compileHamlCoffee" input filename))))

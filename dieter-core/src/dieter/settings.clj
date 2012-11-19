@@ -2,7 +2,7 @@
   (:require [clojure.java.io :as io]))
 
 (defonce ^:dynamic *settings*
-  {:engine     :v8
+  {:engine     :rhino
    :compress   false
    :asset-root "resources"
    :cache-root "resources/asset-cache"
@@ -20,7 +20,7 @@
   (swap! cached-paths assoc path new-path))
 
 (defn asset-roots []
-  (or 
+  (or
     (:asset-roots *settings*)  ;; Plural
     (when-let [ar (:asset-root *settings*)] [ar]))) ;; Fallback
 

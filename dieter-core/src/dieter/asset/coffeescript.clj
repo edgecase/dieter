@@ -3,13 +3,13 @@
    dieter.asset
    dieter.asset.javascript
    [dieter.pools :as pools])
-  (:use [dieter.jsengine :only (call with-scope)]))
+  (:use [dieter.jsengine :only (call with-scope run-compiler)]))
 
 (def pool (pools/make-pool))
 
-(defn compile-coffeescript [input filename]
-  (with-scope pool ["coffee-script.js" "coffee-wrapper.js"]
-    (str (call "compileCoffeeScript" input filename))))
+(defn compile-coffeescript [input file]
+  (run-compiler pool ["coffee-script.js" "coffee-wrapper.js"]
+                "compileCoffeeScript" input file))
 
 (defn preprocess-coffeescript [file]
   (compile-coffeescript (slurp file) (.getCanonicalPath file)))

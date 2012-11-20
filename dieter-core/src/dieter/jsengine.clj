@@ -19,3 +19,10 @@
   (if (= (:engine settings/*settings*) :rhino)
     (apply rhino/call fn-name args)
     (apply v8/call fn-name args)))
+
+(defn run-compiler [pool preloads fn-name & args]
+  (if (= (:engine settings/*settings*) :rhino)
+    (rhino/with-scope pool preloads
+      (apply rhino/call fn-name args))
+    (v8/with-scope pool preloads
+      (apply v8/call fn-name args))))

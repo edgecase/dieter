@@ -13,8 +13,7 @@
 
 (defmacro with-scope [pool preloads & body]
   `(binding [scope (load-vendor ~preloads)]
-     ~@body
-     ))
+     ~@body))
 
 (defn escape-value [val]
   (str/escape val {\\ "\\\\" \" "\\\"" \newline "\\n"}))

@@ -1,6 +1,7 @@
 (ns dieter.asset.hamlcoffee
   (:require [dieter.pools :as pools]
             dieter.asset.javascript
+            dieter.asset
             [clojure.string :as cstr])
   (:use [dieter.rhino :only (with-scope call)]))
 
@@ -13,7 +14,7 @@
   (with-scope pool ["coffee-script.js"
                     ;; imported direct from https://raw.github.com/netzpirat/haml-coffee/master/dist/compiler/hamlcoffee.js
                     "hamlcoffee.js"
-                    "hamlcoffee-assets-rhino-fix.js"
+                    "haml_coffee_assets-rhino-fix.js"
                     ;; imported direct from https://raw.github.com/netzpirat/haml_coffee_assets/master/lib/js/haml_coffee_assets.js
                     "haml_coffee_assets.js"
                     "hamlcoffee-wrapper.js"]

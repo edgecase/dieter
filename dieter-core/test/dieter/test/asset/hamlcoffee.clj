@@ -11,7 +11,7 @@
        "'] = function(context) {\n    return (function() {\n      var $o;\n      $o = [];\n      $o.push(\""
 
        output
-       "\");\n      return $o.join(\"\\n\").replace(/\\s(\\w+)='\223true'/mg, ' $1').replace(/\\s(\\w+)='\223false'/mg, '');\n    }).call(context);\n  };\n\n}).call(this);\n"))
+       "\");\n      return $o.join(\"\\n\");\n    }).call(context);\n  };\n\n}).call(this);\n"))
 
 (deftest test-preprocess-hamlcoffee
   (testing "basic hamlc file"

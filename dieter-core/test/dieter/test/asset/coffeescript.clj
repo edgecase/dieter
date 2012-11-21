@@ -17,5 +17,4 @@
         (is false) ; must throw
         (catch Exception e
           (is (has-text? (.toString e) "on line 2"))
-          (is (has-text? (.toString e) "bad.js.coffee"))
           (is (has-text? (.toString e) "unmatched ]")))))))

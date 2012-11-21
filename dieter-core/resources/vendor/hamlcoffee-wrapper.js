@@ -31,5 +31,4 @@ function compileHamlCoffee(input, filename) {
   } catch (e) {
     throw formatError(e, filename);
   }
-
 }

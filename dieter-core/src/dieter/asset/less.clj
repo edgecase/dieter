@@ -1,17 +1,19 @@
 (ns dieter.asset.less
-  (:use
-   [dieter.jsengine :only (with-scope call)])
   (:require
    dieter.asset.css
    [dieter.pools :as pools]
    [clojure.string :as cstr]
-   [dieter.asset :as asset]))
+   [dieter.asset :as asset])
+  (:use [dieter.jsengine :only (run-compiler)]))
 
 (def pool (pools/make-pool))
 
 (defn preprocess-less [file]
-  (with-scope pool ["less-wrapper.js" "less-rhino-1.3.0.js"]
-    (call "compileLess" (.getCanonicalPath file))))
+  (run-compiler pool
+                ["less-wrapper.js" "less-rhino-1.3.0.js"]
+                "compileLess"
+                file
+                :engine :rhino)) ; cant support v8 imports yet
 
 (defrecord Less [file]
   dieter.asset.Asset

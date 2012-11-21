@@ -39,7 +39,7 @@ function format_error(e) {
     "\nEXTRACT: " + e.extract
 }
 
-function compileLess(name) {
+function compileLess(input, name) {
     var output,
         compress = false,
         i;

@@ -29,13 +29,35 @@
        (binding [scope ~'pool-entry]
          ~@body))))
 
+;; TODO We'd like to make sure that exceptions get reported as clojure hash, not
+;; as "[object Error]". When that happens in both Rhino and v8, we can remove
+;; the formatError wrappers in the various compiler wrappers
+(defn jsobj->map [jsobj]
+  (if (instance? org.mozilla.javascript.ScriptableObject jsobj)
+    (into {}
+          (doseq [id (.getAllIds jsobj)]
+            [(keyword id) (if (instance? java.lang.String id)
+                            (.get jsobj (cast java.lang.String id) jsobj)
+                            (throw "try again"))]))
+    jsobj))
 
+(defmacro catch-carefully [& body]
+  `(try
+     ~@body
+     (catch org.mozilla.javascript.JavaScriptException e#
+       (let [script-trace# (.getScriptStackTrace e#)
+             message# (str (-> e# .getMessage jsobj->map))
+             new-exc# (java.lang.Exception. (str message# "\n" script-trace#))]
+         (.setStackTrace new-exc# (.getStackTrace e#))
+         (throw new-exc#)))))
 
 (defn call [fn-name & args]
-  (let [#^org.mozilla.javascript.InterpretedFunction fun (.get scope fn-name scope)]
-    (.call fun context scope nil (into-array args))))
+  (catch-carefully
+   (let [#^org.mozilla.javascript.InterpretedFunction fun (.get scope fn-name scope)]
+     (.call fun context scope nil (into-array args)))))
 
 (defn load-vendor [filename scope]
-  (.evaluateReader context scope
-                   (io/reader (io/resource (str "vendor/" filename)))
-                   filename 1 nil))
+  (catch-carefully
+   (.evaluateReader context scope
+                    (io/reader (io/resource (str "vendor/" filename)))
+                    filename 1 nil)))

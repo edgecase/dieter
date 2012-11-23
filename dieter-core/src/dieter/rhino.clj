@@ -52,7 +52,7 @@
          (.setStackTrace new-exc# (.getStackTrace e#))
          (throw new-exc#)))))
 
-(defn call [fn-name & args]
+(defn call [fn-name args]
   (catch-carefully
    (let [#^org.mozilla.javascript.InterpretedFunction fun (.get scope fn-name scope)]
      (.call fun context scope nil (into-array args)))))

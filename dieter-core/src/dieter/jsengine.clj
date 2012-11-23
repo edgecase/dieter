@@ -22,10 +22,12 @@
 
 (defn run-compiler [pool preloads fn-name file & {:keys [engine]}]
   (let [input (slurp file)
-        filename (.getCanonicalPath file)]
+        absolute (.getCanonicalPath file)
+        filename (.getPath file)
+        args [input absolute filename]]
     (if (or (= (:engine settings/*settings*) :rhino)
             (= engine :rhino))
       (rhino/with-scope pool preloads
-        (rhino/call fn-name input filename))
+        (rhino/call fn-name args))
       (v8/with-scope pool preloads
-        (v8/call fn-name input filename)))))
+        (v8/call fn-name args)))))

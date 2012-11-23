@@ -42,6 +42,7 @@
     jsobj))
 
 (defmacro catch-carefully [& body]
+  "Extract the message while preserving the stack traces both within the script and from the caller"
   `(try
      ~@body
      (catch org.mozilla.javascript.JavaScriptException e#

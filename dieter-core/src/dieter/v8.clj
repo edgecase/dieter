@@ -33,6 +33,6 @@
                   files)))
 
 
-(defn call [fn-name & args]
+(defn call [fn-name args]
   (let [script (str scope (construct-call fn-name args))]
     (v8engine/run-script script)))

@@ -24,7 +24,7 @@ function compileHamlCoffee(input, absolute, filename) {
                                     '', // customPrecede
                                     '', // preserveTags
                                     '', // selfCloseTags
-                                    null, // context
-                                    true // extendScope
+                                    '', // context
+                                    false // extendScope
 );
 }

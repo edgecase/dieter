@@ -22,8 +22,8 @@
 
 (defn run-compiler [pool preloads fn-name file & {:keys [engine]}]
   (let [input (slurp file)
-        absolute (.getCanonicalPath file)
-        filename (.getPath file)
+        absolute (.getAbsolutePath file)
+        filename (.getCanonicalPath file)
         args [input absolute filename]]
     (if (or (= (:engine settings/*settings*) :rhino)
             (= engine :rhino))

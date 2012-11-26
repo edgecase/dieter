@@ -28,8 +28,14 @@
 
 (defn load-vendor [files]
   (apply str (map (fn [f]
-                    (apply str "\n" (line-seq (io/reader (io/resource
-                                               (fs/join "vendor" f))))))
+                    (->> f
+                         (fs/join "vendor")
+                         io/resource
+                         io/reader
+                         line-seq
+                         (interpose "\n")
+                         (concat "\n\n")
+                         (apply str)))
                   files)))
 
 

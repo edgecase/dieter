@@ -17,8 +17,7 @@
                  "haml_coffee_assets.js"
                  "hamlcoffee-wrapper.js"]
                 "compileHamlCoffee"
-                file
-                :engine :rhino)) ; still crashes
+                file))
 
 (defrecord HamlCoffee [file]
   dieter.asset.Asset

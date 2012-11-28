@@ -2,7 +2,7 @@
   (:require
    dieter.asset.css
    [dieter.pools :as pools]
-   [clojure.string :as cstr]
+   [dieter.settings :as settings]
    [dieter.asset :as asset])
   (:use [dieter.jsengine :only (run-compiler)]))
 
@@ -10,8 +10,9 @@
 
 (defn preprocess-less [file]
   (run-compiler pool
-                [;"less-rhino-wrapper.js"
-                 "less-wrapper.js" "less-rhino-1.3.0.js"]
+                (if (-> settings/*settings* :engine (= :rhino))
+                  ["less-rhino-wrapper.js" "less-wrapper.js" "less-rhino-1.3.0.js"]
+                  ["less-wrapper.js" "less-rhino-1.3.0.js"])
                 "compileLess"
                 file))
 

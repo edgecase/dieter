@@ -3,15 +3,6 @@
 
 var startingName;
 
-function readFile(filename){
-  var file = java.io.File(filename);
-  result = new String(Packages.org.apache.commons.io.FileUtils.readFileToString(file));
-  if (result == '')
-    throw('lesscss: couldn\'t open file ' + filename);
-
-  return result;
-}
-
 function loadStyleSheet(sheet, callback, reload, remaining) {
     var endOfPath = Math.max(startingName.lastIndexOf('/'), startingName.lastIndexOf('\\')),
         sheetName = startingName.slice(0, endOfPath + 1) + sheet.href,

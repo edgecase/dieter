@@ -10,10 +10,10 @@
 
 (defn preprocess-less [file]
   (run-compiler pool
-                ["less-wrapper.js" "less-rhino-1.3.0.js"]
+                [;"less-rhino-wrapper.js"
+                 "less-wrapper.js" "less-rhino-1.3.0.js"]
                 "compileLess"
-                file
-                :engine :rhino)) ; cant support v8 imports yet
+                file))
 
 (defrecord Less [file]
   dieter.asset.Asset

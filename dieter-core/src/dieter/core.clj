@@ -79,7 +79,7 @@
             (let [new-path (make-relative-to-cache (str cached))]
               (add-cached-path path new-path)
               (app (assoc req :uri new-path)))
-            ((app req)))
+            (app req))
           (app req))))))
 
 (defn foreach-file

@@ -20,7 +20,7 @@ Contents can be a String, StringBuilder, or byte[]"))
   "register a new asset constructor for files with the file-ext"
   (swap! types assoc file-ext constructor-fn))
 
-(defn make-asset [filename]
+(defn make-asset [file]
   "returns a newly constructed asset of the proper type as determined by the file extension.
 defaults to Static if extension is not registered."
-  ((get @types (file-ext filename) (:default @types)) {:file filename}))
+  ((get @types (file-ext file) (:default @types)) {:file file}))

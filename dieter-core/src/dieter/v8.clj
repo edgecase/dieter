@@ -38,7 +38,7 @@
                          (apply str)))
                   files)))
 
-
+;; TODO: pool contexts between runs, to allow the V8 compiler optimize
 (defn call [fn-name args]
   (let [script (str scope (construct-call fn-name args))]
     (v8engine/run-script script)))

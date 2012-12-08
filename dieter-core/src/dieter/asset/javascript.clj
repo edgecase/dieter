@@ -5,6 +5,7 @@
    [com.google.javascript.jscomp JSSourceFile CompilerOptions CompilationLevel WarningLevel]
    [java.util.logging Logger Level]))
 
+;; TODO: use pools here too to avoid constructor overhead
 (defn make-compiler [log-level]
   (let [compiler (com.google.javascript.jscomp.Compiler.)
         options (CompilerOptions.)]

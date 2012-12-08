@@ -20,6 +20,7 @@
     (apply rhino/call fn-name args)
     (apply v8/call fn-name args)))
 
+;; TODO: take an asset to avoid slurping here
 (defn run-compiler [pool preloads fn-name file & {:keys [engine]}]
   (let [input (slurp file)
         absolute (.getAbsolutePath file)

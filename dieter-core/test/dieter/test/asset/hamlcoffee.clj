@@ -20,6 +20,18 @@
              (preprocess-hamlcoffee
               (io/file "test/fixtures/assets/javascripts/basic.hamlc")))))))
 
+(deftest test-caching
+  (with-both-engines
+    (testing "we get the same result when there are caches"
+      (is (= (preprocess-hamlcoffee
+              (io/file "test/fixtures/assets/javascripts/basic.hamlc"))
+             (preprocess-hamlcoffee
+              (io/file "test/fixtures/assets/javascripts/basic.hamlc"))
+             (preprocess-hamlcoffee
+              (io/file "test/fixtures/assets/javascripts/basic.hamlc"))
+             (preprocess-hamlcoffee
+              (io/file "test/fixtures/assets/javascripts/basic.hamlc")))))))
+
   ;; (testing "file with surround and succeed"
   ;;   (is (= "TODO"
   ;;          (preprocess-hamlcoffee

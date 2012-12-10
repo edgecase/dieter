@@ -1,4 +1,6 @@
 (ns dieter.asset
+  (:require [clj-time.core :as time]
+            [clj-time.coerce :as time-coerce])
   (:use [dieter.path :only [file-ext]]))
 
 (defprotocol Asset
@@ -19,6 +21,28 @@ Contents can be a String, StringBuilder, or byte[]"))
 (defn register [file-ext constructor-fn]
   "register a new asset constructor for files with the file-ext"
   (swap! types assoc file-ext constructor-fn))
+
+
+(def memoized (atom {}))
+(defn memoize-file [file f]
+  "Ability to cache precomputed files using timestamps (avoiding the term \"cache\" since it'ss already overloaded here)"
+  (let [filename (.getCanonicalPath file)
+        val (get @memoized filename)
+        current-timestamp (-> file .lastModified time-coerce/from-long)
+        saved-timestamp (:timestamp val)
+        saved-content (:content val)]
+    (if (and saved-content
+             (time/before? current-timestamp saved-timestamp))
+
+      ;; return already memory
+      saved-content
+
+      ;; compute new value and save it
+      (let [new-content (f)]
+        (dosync
+         (swap! memoized assoc filename {:content new-content
+                                         :timestamp (time/now)}))
+        new-content))))
 
 (defn make-asset [file]
   "returns a newly constructed asset of the proper type as determined by the file extension.

@@ -1,6 +1,6 @@
 (ns dieter.asset.coffeescript
   (:require
-   dieter.asset
+   [dieter.asset :as asset]
    dieter.asset.javascript
    [dieter.pools :as pools])
   (:use [dieter.jsengine :only (run-compiler)]))
@@ -8,10 +8,11 @@
 (def pool (pools/make-pool))
 
 (defn preprocess-coffeescript [file]
-  (run-compiler pool
-                ["coffee-script.js" "coffee-wrapper.js"]
-                "compileCoffeeScript"
-                file))
+  (asset/memoize-file file
+                      #(run-compiler pool
+                                     ["coffee-script.js" "coffee-wrapper.js"]
+                                     "compileCoffeeScript"
+                                     file)))
 
 (defrecord Coffee [file]
   dieter.asset.Asset

@@ -14,7 +14,7 @@ In addition it minifies javascript using the Google Closure compiler.
 
 Add dieter as a dependency in leiningen
 
-    [dieter "0.2.0"]
+    [dieter "0.3.0"]
 
 Insert it into your ring middleware stack
 
@@ -57,7 +57,8 @@ In order to include links to your assets you may use the link-to-asset function.
 
 ## Configuration Options
 
-    :compress   false
+    :engine     :rhino                  ; defaults to :rhino; :v8 is much much faster
+    :compress   false                   ; minify using Google Closure Compiler
     :asset-roots ["resources"]          ; must have a folder called 'assets'
     :cache-root "resources/asset-cache" ; compiled assets are cached here
     :cache-mode :development            ; or :production. :development disables cacheing
@@ -74,7 +75,7 @@ Note you need to pass your config options to asset-pipeline as well as link-to-a
 
 It is easy to add new preprocessors to dieter. Each preprocessor (CoffeeScript, HamlCoffee, etc)
 uses the default library for that language, hooked up to dieter using the Rhino
-JavaScript library. See src/dieter/assets/ for easy-to-follow examples.
+JavaScript library. See dieter-core/src/dieter/assets/ for easy-to-follow examples.
 
 ## Dancing
 
@@ -90,3 +91,18 @@ Distributed under the Eclipse Public License, the same as Clojure.
 
 ### Version 0.2.0
 * Handlebars templates are now a separate library. [dieter-ember](https://github.com/edgecase/dieter-ember)
+
+### Version 0.3.0
+* Use v8 for Less, Hamlcoffee and CoffeeScript
+* Cache and avoid recompiling CoffeeScript and HamlCoffee files which haven't changed
+* Update to lein2
+* Improve stack traces upon failure in Rhino
+* Update Coffeescript (1.3.3), Less (1.3.0) and Hamlcoffee (1.2.0) versions
+* Ignore transient files from vim and emacs
+* Better error reporting of HamlCoffee
+* Support multiple asset directories
+* Add expire-never headers
+* Improve Rhino speed by using one engine per thread
+* Update to latest Rhino for better performance
+* Support for `lein dieter-precompile`
+* Add mime type headers for dieter files

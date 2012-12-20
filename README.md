@@ -5,7 +5,7 @@ Dieter [dee-ter] is a clojure interpretation of the ruby Sprockets library.
 ## Usage
 
 Dieter provides you with a ring middleware which will compile certain
-static assets. Currently it supports concatiating javascript and CSS
+static assets. Currently it supports concatenating javascript and CSS
 files, compiling
 [LESS CSS](http://lesscss.org/),
 [CoffeeScript](http://jashkenas.github.com/coffee-script/) and
@@ -29,7 +29,7 @@ Or if you use noir
 (server/add-middleware asset-pipeline config-options)
 ```
 
-Concatination of assets is handled by a Dieter manifest file.
+Concatenation of assets is handled by a Dieter manifest file.
 A manifest is a file whose name ends in .dieter and whose contents are
 a clojure vector of file names / directories to concatenate.
 

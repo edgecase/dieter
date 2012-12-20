@@ -63,6 +63,7 @@ In order to include links to your assets you may use the link-to-asset function.
     :cache-root "resources/asset-cache" ; compiled assets are cached here
     :cache-mode :development            ; or :production. :development disables cacheing
     :log-level  :normal                 ; or :quiet
+    :precompiles ["./assets/myfile.js.dieter"] ; list of files for `lein dieter-precompile` to precompile. If left blank (the default), all files will be precompiled, and errors will be ignored.
 
 Dieter searches for your assets in [asset-root]/assets.
 Compiled assets are always written to the cache-root. In production mode this

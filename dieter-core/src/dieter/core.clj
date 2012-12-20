@@ -95,18 +95,23 @@
 (defn precompile [options]
   (with-options options
     (-> *settings* :cache-root (fs/join "assets") fs/deltree)
-    (doseq [asset-root (asset-roots)]
-      (foreach-file
-       (fs/join asset-root "assets")
-       (fn [filename]
-         (try (->> filename
-                   (relative-path asset-root)
-                   (str "./")
-                   (find-and-cache-asset))
-              (print ".")
-              (catch Exception e
-                (println "Not built" filename)))))
-      nil)))
+    (if (:precompiles *settings*)
+      (doseq [filename (:precompiles *settings*)]
+        (->> filename
+             (str "./")
+             (find-and-cache-asset)))
+      (doseq [asset-root (asset-roots)]
+        (foreach-file
+         (fs/join asset-root "assets")
+         (fn [filename]
+           (try (->> filename
+                     (relative-path asset-root)
+                     (str "./")
+                     (find-and-cache-asset))
+                (print ".")
+                (catch Exception e
+                  (println "Not built" filename)))))
+        nil))))
 
 (defn asset-pipeline
   "Construct the Dieter asset pipeline depending on the :cache-mode option, eventually

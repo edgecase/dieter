@@ -58,3 +58,12 @@
     (is (contains-file? files (io/file "test/fixtures/assets/javascripts/nested-dirs/nested1/a.js")))
     (is (contains-file? files (io/file "test/fixtures/assets/javascripts/nested-dirs/nested1/b.js")))
     (is (contains-file? files (io/file "test/fixtures/assets/javascripts/nested-dirs/nested2/c.js")))))
+
+(deftest test-error-on-missing-file
+  (let [filename "test/fixtures/assets/javascripts/missing_test/missing.dieter"
+        manifest (io/file filename)]
+    (try
+      (manifest-files manifest)
+      (is false) ; shouldnt hit
+      (catch Exception e
+        (is (has-text? (.toString e) (str "Cannot find some-file-which-doesnt-exist.js from " filename)))))))

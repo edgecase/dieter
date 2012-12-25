@@ -7,7 +7,7 @@
    [clojure.java.io :as io]
    [clojure.string :as s])
   (:import
-   [java.io FileReader PushbackReader]))
+   [java.io FileReader PushbackReader FileNotFoundException]))
 
 (defn load-manifest
   "a manifest file must be a valid clojure data structure,
@@ -39,9 +39,11 @@ We should probably consider outputting some kind of warning in that case."
   [manifest-file]
   (->> (load-manifest manifest-file)
        (map (fn [filename]
-              (if (re-matches #".*/$" filename)
-                (file-seq (search-dir filename (.getParentFile manifest-file)))
-                (find-file filename (.getParentFile manifest-file)))))
+              (let [file (if (re-matches #".*/$" filename)
+                           (file-seq (search-dir filename (.getParentFile manifest-file)))
+                           (find-file filename (.getParentFile manifest-file)))]
+
+                (or file (throw (FileNotFoundException. (str "Cannot find " filename " from " manifest-file)))))))
        flatten
        (remove #(or (nil? %)
                     (.isDirectory %)

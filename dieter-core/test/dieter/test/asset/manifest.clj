@@ -67,3 +67,13 @@
       (is false) ; shouldnt hit
       (catch Exception e
         (is (has-text? (.toString e) (str "Cannot find some-file-which-doesnt-exist.js from " filename)))))))
+
+(deftest test-files-named-same-as-dir
+  ;; test for incorrect behaviour. When a dir A should contain a file A but doesn't, dieter returned the dir instead of the file.
+  (let [filename "test/fixtures/assets/javascripts/missing_test/missing-in-dir.dieter"
+        manifest (io/file filename)]
+    (try
+      (manifest-files manifest)
+      (is false) ; shouldnt hit
+      (catch Exception e
+        (is (has-text? (.toString e) (str "Cannot find missing_file from " filename)))))))

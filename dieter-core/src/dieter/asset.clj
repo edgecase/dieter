@@ -15,13 +15,16 @@
 Must return final contents of the file for output.
 Contents can be a String, StringBuilder, or byte[]"))
 
+;;;;;;;;;;;;;;;;;;;;;;;
+;;; Register assets
+;;;;;;;;;;;;;;;;;;;;;;;
+
 (def types "mapping of file types to constructor functions"
   (atom {}))
 
-(defn register [file-ext constructor-fn]
-  "register a new asset constructor for files with the file-ext"
-  (swap! types assoc file-ext constructor-fn))
-
+(defn register [ext constructor-fn]
+  "register a new asset constructor for files with the file extension ext"
+  (swap! types assoc ext constructor-fn))
 
 (def memoized (atom {}))
 (defn memoize-file [file f]

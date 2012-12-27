@@ -1,8 +1,7 @@
 (ns dieter.asset.coffeescript
-  (:require
-   [dieter.asset :as asset]
-   dieter.asset.javascript
-   [dieter.pools :as pools])
+  (:require [dieter.asset :as asset]
+            dieter.asset.javascript
+            [dieter.pools :as pools])
   (:use [dieter.jsengine :only (run-compiler)]))
 
 (def pool (pools/make-pool))
@@ -18,3 +17,6 @@
   dieter.asset.Asset
   (read-asset [this options]
     (dieter.asset.javascript.Js. (:file this) (preprocess-coffeescript (:file this)))))
+
+(asset/register "coffee" map->Coffee)
+(asset/register "cs" map->Coffee)

@@ -24,3 +24,5 @@
   dieter.asset.Asset
   (read-asset [this options]
     (dieter.asset.javascript.Js. (:file this) (preprocess-hamlcoffee (:file this)))))
+
+(asset/register "hamlc" map->HamlCoffee)

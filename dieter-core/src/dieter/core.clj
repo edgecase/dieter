@@ -1,136 +1,71 @@
 (ns dieter.core
   (:require [clojure.java.io :as io]
             [fs]
-            [ring.util.response :as res])
-  (:use
-   dieter.settings
-   dieter.asset
-   [dieter.path :only [find-file cached-file-path make-relative-to-cache
-                       uncachify-filename cache-busting-path write-file
-                       relative-path]]
-   [ring.middleware.file      :only [wrap-file]]
-   [ring.middleware.file-info :only [wrap-file-info]]
-   [dieter.middleware.expires :only [wrap-file-expires-never]]
-   [dieter.asset.javascript   :only [map->Js]]
-   [dieter.asset.css          :only [map->Css]]
-   [dieter.asset.static       :only [map->Static]]
-   [dieter.asset.less         :only [map->Less]]
-   [dieter.asset.coffeescript :only [map->Coffee]]
-   [dieter.asset.hamlcoffee   :only [map->HamlCoffee]]
-   [dieter.asset.manifest     :only [map->Dieter]])
-  (:import java.io.File))
-
-
-(register :default map->Static)
-(register "coffee" map->Coffee)
-(register "cs"     map->Coffee)
-(register "css"    map->Css)
-(register "dieter" map->Dieter)
-(register "hamlc"  map->HamlCoffee)
-(register "js"     map->Js)
-(register "less"   map->Less)
+            [dieter.settings :as settings]
+            [dieter.asset :as asset]
+            [dieter.path :as path]
+            [dieter.precompile :as precompile]
+            [dieter.asset.coffeescript]
+            [dieter.asset.css]
+            [dieter.asset.hamlcoffee]
+            [dieter.asset.javascript]
+            [dieter.asset.less]
+            [dieter.asset.manifest]
+            [dieter.asset.static])
+  (:use [ring.middleware.file      :only [wrap-file]]
+        [ring.middleware.file-info :only [wrap-file-info]]
+        [dieter.middleware.expires :only [wrap-file-expires-never]]
+        [dieter.middleware.mime    :only [wrap-dieter-mime-types]]))
 
 (defn write-to-cache [content requested-path]
-  (let [dest (io/file (cached-file-path requested-path content))]
+  (let [dest (io/file (path/cached-file-path requested-path content))]
     (io/make-parents dest)
-    (write-file content dest)
+    (path/write-file content dest)
     dest))
 
-;; TODO: return mime type for dieter
-(def known-mime-types
-  {:hbs "text/javascript"
-   "less" "text/css"
-   "hamlc" "text/javascript"
-   "coffee" "text/javascript"
-   "cs" "text/javascript"})
-
-(defn dieter-file-type [filename]
-  (cond
-   (re-matches #".*css-[\da-f]{32}\.dieter$" filename) "text/css"
-   (re-matches #".*js-[\da-f]{32}\.dieter$" filename) "text/javascript"))
-
-(defn wrap-dieter-mime-types
-  [app]
-  (fn [req]
-    (let [{:keys [headers body] :as response} (app req)]
-      (if (instance? File body)
-        (let [filename (.getPath body)
-              file-type (dieter-file-type filename)]
-          (if file-type
-            (-> response
-                (res/content-type file-type))
-            response))
-        response))))
-
 (defn find-and-cache-asset [requested-path]
-  (when-let [file (reduce #(or %1 (find-file requested-path %2)) nil (asset-roots))]
+  (when-let [file (reduce #(or %1 (path/find-file requested-path %2)) nil (settings/asset-roots))]
     (-> file
-        (make-asset)
-        (read-asset *settings*)
-        (compress *settings*)
+        (asset/make-asset)
+        (asset/read-asset settings/*settings*)
+        (asset/compress settings/*settings*)
         (write-to-cache requested-path))))
 
 (defn asset-builder [app & [options]]
   (fn [req]
-    (with-options options
-      (let [path (uncachify-filename (:uri req))]
+    (settings/with-options options
+      (let [path (path/uncachify-filename (:uri req))]
         (if (re-matches #"^/assets/.*" path)
           (if-let [cached (find-and-cache-asset (str "." path))]
-            (let [new-path (make-relative-to-cache (str cached))]
-              (add-cached-path path new-path)
+            (let [new-path (path/make-relative-to-cache (str cached))]
+              (settings/add-cached-path path new-path)
               (app (assoc req :uri new-path)))
             (app req))
           (app req))))))
 
-(defn foreach-file
-  "Iterate through the assets directory"
-  [dir f]
-  (fs/walk
-   dir
-   (fn [root _ files]
-     (doseq [file files]
-       (f (->> file
-               (fs/join root)))))))
-
-(defn precompile [options]
-  (with-options options
-    (-> *settings* :cache-root (fs/join "assets") fs/deltree)
-    (if (:precompiles *settings*)
-      (doseq [filename (:precompiles *settings*)]
-        (->> filename
-             (str "./")
-             (find-and-cache-asset)))
-      (doseq [asset-root (asset-roots)]
-        (foreach-file
-         (fs/join asset-root "assets")
-         (fn [filename]
-           (try (->> filename
-                     (relative-path asset-root)
-                     (str "./")
-                     (find-and-cache-asset))
-                (print ".")
-                (catch Exception e
-                  (println "Not built" filename)))))
-        nil))))
+(def known-mime-types {:hbs "text/javascript"
+                       "less" "text/css"
+                       "hamlc" "text/javascript"
+                       "coffee" "text/javascript"
+                       "cs" "text/javascript"})
 
 (defn asset-pipeline
   "Construct the Dieter asset pipeline depending on the :cache-mode option, eventually
    either loading the data from the cache directory, rendering a new resource and
    returning that, or passing on the request to the previously existing request
    handlers in the pipeline."
-
   [app & [options]]
-  (with-options options
-    (if (= :production (:cache-mode *settings*))
+  (settings/with-options options
+    (if (= :production (:cache-mode settings/*settings*))
       (-> app
-          (wrap-file (cache-root))
-          (asset-builder *settings*)
-          (wrap-file-expires-never (cache-root))
+          (wrap-file (settings/cache-root))
+          (asset-builder settings/*settings*)
+          (wrap-file-expires-never (settings/cache-root))
           (wrap-file-info known-mime-types)
           (wrap-dieter-mime-types))
       (-> app
-          (wrap-file (cache-root))
-          (asset-builder *settings*)
+          (wrap-file (settings/cache-root))
+          (asset-builder settings/*settings*)
           (wrap-file-info known-mime-types)
           (wrap-dieter-mime-types)
           (wrap-file-info known-mime-types)))))
@@ -138,23 +73,18 @@
 (defn link-to-asset [path & [options]]
   "path should start under assets and not contain a leading slash
 ex. (link-to-asset \"javascripts/app.js\") => \"/assets/javascripts/app-12345678901234567890123456789012.js\""
-  (with-options options
-    (if-let [file (reduce #(or %1 (find-file (str "./assets/" path) %2)) nil (asset-roots))]
-      (cache-busting-path *settings* (str "/assets/" path)))))
+  (settings/with-options options
+    (if-let [file (reduce #(or %1 (path/find-file (str "./assets/" path) %2)) nil (settings/asset-roots))]
+      (path/cache-busting-path settings/*settings* (str "/assets/" path)))))
 
-(defn load-precompiled-assets
-  "Load any assets already in the cache directory"
-  []
-  (foreach-file
-   (cache-root)
-   (fn [cached]
-     (let [cached (->> cached
-                       (relative-path (cache-root))
-                       (str "/"))
-           uncached (->> cached
-                         (uncachify-filename))]
-       (add-cached-path uncached cached)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Entry points
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn precompile [options] ;; lein dieter-precompile uses this name
+  (precompile/precompile [options]))
 
 (defn init [options]
-  (with-options options
-    (load-precompiled-assets)))
+  (settings/with-options options
+    (precompile/load-precompiled-assets)))

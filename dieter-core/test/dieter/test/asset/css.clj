@@ -1,25 +1,27 @@
 (ns dieter.test.asset.css
-  (:use dieter.asset.css)
-  (:import dieter.asset.css.Css)
-  (:use dieter.asset)
+  (:require [clojure.java.io :as io]
+            [dieter.test.helpers :as h]
+            [dieter.asset :as asset]
+            [dieter.asset.css :as css])
   (:use clojure.test)
-  (:use dieter.test.helpers)
-  (:require [clojure.java.io :as io]))
+  (:import dieter.asset.css.Css))
 
 (deftest test-read-asset-css
-  (let [asset (read-asset (Css. (io/file "test/fixtures/assets/stylesheets/main.css") nil) {})]
+  (let [asset (asset/read-asset (Css.
+                                 (io/file "test/fixtures/assets/stylesheets/main.css")
+                                 nil) {})]
     (testing "adds a source comment"
-      (is (has-text? (:content asset) "/* Source: test/fixtures/assets/stylesheets/main.css */")))
+      (is (h/has-text? (:content asset) "/* Source: test/fixtures/assets/stylesheets/main.css */")))
     (testing "includes file contents"
-      (is (has-text? (:content asset) "text-decoration: blink;")))))
+      (is (h/has-text? (:content asset) "text-decoration: blink;")))))
 
 (deftest test-compress-css
   (let [uncompressed-css "   .content .p {\n color: #fff;\n }"
         asset (Css. "filename.css" uncompressed-css)]
     (testing "compression disabled"
       (is (= uncompressed-css
-             (compress asset {:compress false}))))
+             (asset/compress asset {:compress false}))))
 
     (testing "compression enabled"
       (is (= ".content .p { color: #fff; }"
-             (compress asset {:compress true}))))))
+             (asset/compress asset {:compress true}))))))

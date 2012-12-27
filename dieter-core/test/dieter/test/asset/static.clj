@@ -1,17 +1,16 @@
 (ns dieter.test.asset.static
-  (:use dieter.asset.static)
-  (:import dieter.asset.static.Static)
-  (:use dieter.asset)
+  (:require [clojure.java.io :as io]
+            [dieter.asset :as asset]
+            [dieter.asset.static :as static])
   (:use clojure.test)
-  (:use dieter.test.helpers)
-  (:require [clojure.java.io :as io]))
+  (:import dieter.asset.static.Static))
 
 (deftest test-static-assets
   (let [file (io/file "test/fixtures/assets/images/dieter.jpeg")
-        asset (read-asset (Static. file nil) {})]
+        asset (asset/read-asset (Static. file nil) {})]
     (testing "read-asset"
       (is (= (.length file)
              (count (:content asset)))))
     (testing "compress returns unmodified content"
       (is (= (:content asset)
-             (compress asset {:compress true}))))))
+             (asset/compress asset {:compress true}))))))

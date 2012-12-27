@@ -1,5 +1,9 @@
 (ns dieter.test.helpers
-  (:require [dieter.settings :as settings]))
+  (:require [dieter.settings :as settings]
+            [clojure.java.io :as io]))
+
+(defn contains-file? [seq filename]
+  (<= 1 (count (filter #(= (.getCanonicalPath %) (-> filename io/file .getCanonicalPath)) seq))))
 
 (defn has-text?
   "returns true if expected occurs in text exactly n times (one or more times if not specified)"

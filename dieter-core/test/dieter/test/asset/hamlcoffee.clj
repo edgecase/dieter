@@ -1,8 +1,8 @@
 (ns dieter.test.asset.hamlcoffee
-  (:use dieter.asset.hamlcoffee)
-  (:use clojure.test)
-  (:use dieter.test.helpers)
-  (:require [clojure.java.io :as io]))
+  (:require [clojure.java.io :as io]
+            [dieter.asset.hamlcoffee :as hc]
+            [dieter.test.helpers :as h])
+  (:use clojure.test))
 
 (defn wrap [name output]
   "The hamlcoffee compiler wraps the code, so we need to wrap our expected output"
@@ -14,22 +14,22 @@
        "\");\n      return $o.join(\"\\n\");\n    }).call(context);\n  };\n\n}).call(this);\n"))
 
 (deftest test-preprocess-hamlcoffee
-  (with-both-engines
+  (h/with-both-engines
     (testing "basic hamlc file"
       (is (= (wrap "basic"  "<!DOCTYPE html>\\n<html>\\n  <head>\\n    <title>\\n      Title\\n    </title>\\n  </head>\\n  <body>\\n    <h1>\\n      Header\\n    </h1>\\n  </body>\\n</html>")
-             (preprocess-hamlcoffee
+             (hc/preprocess-hamlcoffee
               (io/file "test/fixtures/assets/javascripts/basic.hamlc")))))))
 
 (deftest test-caching
-  (with-both-engines
+  (h/with-both-engines
     (testing "we get the same result when there are caches"
-      (is (= (preprocess-hamlcoffee
+      (is (= (hc/preprocess-hamlcoffee
               (io/file "test/fixtures/assets/javascripts/basic.hamlc"))
-             (preprocess-hamlcoffee
+             (hc/preprocess-hamlcoffee
               (io/file "test/fixtures/assets/javascripts/basic.hamlc"))
-             (preprocess-hamlcoffee
+             (hc/preprocess-hamlcoffee
               (io/file "test/fixtures/assets/javascripts/basic.hamlc"))
-             (preprocess-hamlcoffee
+             (hc/preprocess-hamlcoffee
               (io/file "test/fixtures/assets/javascripts/basic.hamlc")))))))
 
   ;; (testing "file with surround and succeed"

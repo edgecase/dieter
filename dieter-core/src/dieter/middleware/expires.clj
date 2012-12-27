@@ -30,7 +30,7 @@
    points to something that is a cacheable URL for a precompiled resource. If so, pass
    the request to the ring file middleware and then set the expiration header, otherwise
    just pass the request along to the handlers down the chain."
-   
+
   [app root-path & [opts]]
   (fn [req]
     (let [path (:uri req)

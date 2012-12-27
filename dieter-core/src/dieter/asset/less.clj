@@ -1,9 +1,8 @@
 (ns dieter.asset.less
-  (:require
-   dieter.asset.css
-   [dieter.pools :as pools]
-   [dieter.settings :as settings]
-   [dieter.asset :as asset])
+  (:require [dieter.pools :as pools]
+            dieter.asset.css
+            [dieter.settings :as settings]
+            [dieter.asset :as asset])
   (:use [dieter.jsengine :only (run-compiler)]))
 
 (def pool (pools/make-pool))
@@ -20,3 +19,5 @@
   dieter.asset.Asset
   (read-asset [this options]
     (dieter.asset.css.Css. (:file this) (preprocess-less (:file this)))))
+
+(asset/register "less" map->Less)

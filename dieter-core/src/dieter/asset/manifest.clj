@@ -1,13 +1,10 @@
 (ns dieter.asset.manifest
-  (:use
-   [dieter.asset :only [read-asset make-asset]]
-   [dieter.path :only [search-dir find-file]]
-   [dieter.util :only [slurp-into string-builder]])
-  (:require
-   [clojure.java.io :as io]
-   [clojure.string :as s])
-  (:import
-   [java.io FileReader PushbackReader FileNotFoundException]))
+  (:require [clojure.java.io :as io]
+            [clojure.string :as s]
+            [dieter.asset :as asset]
+            [dieter.path :as path])
+  (:use [dieter.util :only [slurp-into string-builder]])
+  (:import [java.io FileReader PushbackReader FileNotFoundException]))
 
 (defn load-manifest
   "a manifest file must be a valid clojure data structure,
@@ -40,8 +37,8 @@ We should probably consider outputting some kind of warning in that case."
   (->> (load-manifest manifest-file)
        (map (fn [filename]
               (let [file (if (re-matches #".*/$" filename)
-                           (file-seq (search-dir filename (.getParentFile manifest-file)))
-                           (find-file filename (.getParentFile manifest-file)))]
+                           (file-seq (path/search-dir filename (.getParentFile manifest-file)))
+                           (path/find-file filename (.getParentFile manifest-file)))]
 
                 (or file (throw (FileNotFoundException. (str "Cannot find " filename " from " manifest-file)))))))
        flatten
@@ -56,7 +53,9 @@ We should probably consider outputting some kind of warning in that case."
   (read-asset [this options]
     (let [builder (string-builder)
           target-name (s/replace (:file this) #".dieter$" "")
-          result (make-asset (io/file target-name))]
+          result (asset/make-asset (io/file target-name))]
       (doseq [file (manifest-files (:file this))]
-        (.append builder (:content (read-asset (make-asset file) options))))
+        (.append builder (:content (asset/read-asset (asset/make-asset file) options))))
       (assoc result :content builder))))
+
+(asset/register "dieter" map->Dieter)

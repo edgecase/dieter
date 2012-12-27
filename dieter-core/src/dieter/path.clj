@@ -1,15 +1,32 @@
 (ns dieter.path
   (:use dieter.settings)
-  (:require
-   [clojure.string :as cstr]
-   [clojure.java.io :as io]
-   [fs])
-  (:import
-   [java.security MessageDigest]))
+  (:require [clojure.string :as cstr]
+            [clojure.java.io :as io]
+            [fs])
+  (:import [java.security MessageDigest]))
 
 (derive (class (make-array Byte/TYPE 0)) ::bytes)
 (derive java.lang.String ::string-like)
 (derive java.lang.StringBuilder ::string-like)
+
+;; Using strings for paths and files is error-prone, so use Uri and File instead
+(defprotocol UriProtocol
+             "Strings representing urls, that look like /assets/js/a.js.dieter"
+             (uncachify [this] "asd"))
+
+(defrecord Uri [path]
+  UriProtocol
+  (uncachify [this]
+    (if-let [[match fname hash ext] (re-matches #"^(.+)-([\da-f]{32})\.(\w+)$" (:path this))]
+      (str fname "." ext)
+      (:path this))))
+
+(defprotocol FileProtocol "Strings representing paths" (x [this] "asd"))
+(defrecord File [filename]
+  FileProtocol
+  (x [this]))
+
+
 
 (defmulti md5 class)
 

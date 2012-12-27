@@ -1,9 +1,8 @@
 (ns dieter.asset.javascript
-  (:use
-   [dieter.util :only [slurp-into string-builder]])
-  (:import
-   [com.google.javascript.jscomp JSSourceFile CompilerOptions CompilationLevel WarningLevel]
-   [java.util.logging Logger Level]))
+  (:require [dieter.asset :as asset])
+  (:use [dieter.util :only [slurp-into string-builder]])
+  (:import [com.google.javascript.jscomp JSSourceFile CompilerOptions CompilationLevel WarningLevel]
+           [java.util.logging Logger Level]))
 
 ;; TODO: use pools here too to avoid constructor overhead
 (defn make-compiler [log-level]
@@ -43,3 +42,5 @@
     (if (:compress options)
       (compress-js (:file this) (:content this) options)
       (:content this))))
+
+(asset/register "js" map->Js)

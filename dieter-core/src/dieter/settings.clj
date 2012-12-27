@@ -24,11 +24,5 @@
     (:asset-roots *settings*)  ;; Plural
     (when-let [ar (:asset-root *settings*)] [ar]))) ;; Fallback
 
-(defn- abs-path [path]
-  (.getCanonicalPath (io/file path)))
-
-(defn absolute-asset-roots []
-  (map abs-path (asset-roots)))
-
 (defn cache-root []
   (:cache-root *settings*))

@@ -31,15 +31,14 @@
     (str path "-" (md5 content))))
 
 (defn cached-file-path
-  "given the request path, generate the filename of where the file
+  "given the adrf, generate the filename of where the file
 will be cached. Cache is rooted at cache-root/assets/ so that
 static file middleware can be rooted at cache-root"
-  [requested-file content]
-  (add-md5 (cstr/replace-first requested-file "/assets/"
-                               (str "/" (settings/cache-root) "/assets/"))
+  [adrf content]
+  (add-md5 (str (settings/cache-root) adrf)
            content))
 
-(defn write-to-cache [content relpath]
+(defn write-to-cache [content adrf]
   (let [dest (io/file (cached-file-path relpath content))]
     (io/make-parents dest)
     (write-file content dest)

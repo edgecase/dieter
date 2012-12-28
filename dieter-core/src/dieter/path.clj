@@ -57,19 +57,35 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Asset Dir Relative Filename
+;;; String-types used
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; An adrf is a string that represents a path, relative to the asset directory.
-;;; It is used as a canonical representation, and can easily by created from
-;;; URIs and filenames from directory traversals. It can also easily be
-;;; converted into any of these types of file.
+
+;;; Dieter uses many different types of paths, and it can be confusing at times.
+;;; We try to use a sort-of hungarian notation, where every path has a type
+;;; included in its variable name somehow.
+
+;;; A "path" refers to paths of any kind, including filenames, uris, adrfs, etc.
+
+;;; An "Asset-directory-relative filename" (adrf) represents a path, relative
+;;; to the asset directory. It is used as a canonical representation, and can
+;;; easily by created from URIs and filenames from directory traversals. It can
+;;; also easily be converted into any of these types of file.
+
+;;; A URI represents the part of the URI that we use in dieter. If a whole URI
+;;; is prototcol://hostname/path, then we use URI to represent just the "path"
+;;; portion. In dieter, all URIs will start with "/assets/", as otherwise they
+;;; won't be handled by dieter.
+
+;;; A filename represents an actual file on the filesystem. We'll try and keep
+;;; them as absolute strings names, because relative ones are easy to confuse
+;;; with other types.
 
 (defn is-asset-uri? [uri]
   (re-matches #"^/assets/.*" uri))
 
 (defn uri->adrf [uri]
-  ;; uris start with "/"
-  (str "." uri))
+  {:pre [(is-asset-uri? %)]} ;; uris start with "/assets"
+  (cstr/replace-first "/assets/" ""))
 
 (defn uncachify-uri [uri] ;; same implementation
   (uncachify-filename uri))

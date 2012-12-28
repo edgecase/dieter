@@ -57,7 +57,7 @@
    handlers in the pipeline."
   [app & [options]]
   (settings/with-options options
-    (if (= :production (:cache-mode settings/*settings*))
+    (if (settings/production?)
       (-> app
           (wrap-file (settings/cache-root))
           (asset-builder settings/*settings*)

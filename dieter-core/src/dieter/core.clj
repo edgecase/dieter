@@ -27,11 +27,6 @@
         (asset/compress)
         (cache/write-to-cache relpath))))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Entry points
-;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (defn asset-builder [app]
   (fn [req]
     (let [uri (-> req :uri)]
@@ -42,6 +37,10 @@
             (app (assoc req :uri new-uri)))
           (app req))
         (app req)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Entry points
+;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def known-mime-types {:hbs "text/javascript"
                        "less" "text/css"
@@ -59,13 +58,13 @@
     (if (settings/production?)
       (-> app
           (wrap-file (settings/cache-root))
-          (asset-builder settings/*settings*)
+          (asset-builder)
           (wrap-file-expires-never (settings/cache-root))
           (wrap-file-info known-mime-types)
           (wrap-dieter-mime-types))
       (-> app
           (wrap-file (settings/cache-root))
-          (asset-builder settings/*settings*)
+          (asset-builder)
           (wrap-file-info known-mime-types)
           (wrap-dieter-mime-types)
           (wrap-file-info known-mime-types)))))

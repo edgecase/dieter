@@ -21,7 +21,7 @@
 (deftest test-dieter-asset
   (let [manifest (asset/make-asset (io/file
                                     "test/fixtures/assets/javascripts/manifest.js.dieter"))
-        text (str (:content (asset/read-asset manifest {})))]
+        text (str (:content (asset/read-asset manifest)))]
 
     (testing "relative file paths"
       (is (h/has-text? text "var file = \"/app.js\"")))

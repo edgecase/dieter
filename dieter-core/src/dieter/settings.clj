@@ -24,8 +24,11 @@
 (defn precompiles []
   (:precompiles *settings*))
 
+(defn log-level []
+  (:log-level *settings*))
+
 (defn compress? []
-  (:compress *settings*))
+  (-> *settings* :compress boolean))
 
 (defn production? []
   (-> *settings* :cache-mode (= :development) not))

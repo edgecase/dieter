@@ -15,7 +15,7 @@
 
 (defrecord Coffee [file]
   dieter.asset.Asset
-  (read-asset [this options]
+  (read-asset [this]
     (dieter.asset.javascript.Js. (:file this) (preprocess-coffeescript (:file this)))))
 
 (asset/register "coffee" map->Coffee)

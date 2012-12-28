@@ -5,12 +5,12 @@
 
 (defprotocol Asset
   "Protocol for pre-processing assets"
-  (read-asset [this options]
+  (read-asset [this]
     "Perform all pre-processing on the object. Must return an Asset."))
 
 (defprotocol Compressor
   "Protocol for compressing assets"
-  (compress [this options]
+  (compress [this]
     "Perform any required compression / minification.
 Must return final contents of the file for output.
 Contents can be a String, StringBuilder, or byte[]"))

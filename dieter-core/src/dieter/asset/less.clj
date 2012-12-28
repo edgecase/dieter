@@ -17,7 +17,7 @@
 
 (defrecord Less [file]
   dieter.asset.Asset
-  (read-asset [this options]
+  (read-asset [this]
     (dieter.asset.css.Css. (:file this) (preprocess-less (:file this)))))
 
 (asset/register "less" map->Less)

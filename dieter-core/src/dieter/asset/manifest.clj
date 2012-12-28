@@ -50,12 +50,12 @@ We should probably consider outputting some kind of warning in that case."
 
 (defrecord Dieter [file]
   dieter.asset.Asset
-  (read-asset [this options]
+  (read-asset [this]
     (let [builder (string-builder)
           target-name (s/replace (:file this) #".dieter$" "")
           result (asset/make-asset (io/file target-name))]
       (doseq [file (manifest-files (:file this))]
-        (.append builder (:content (asset/read-asset (asset/make-asset file) options))))
+        (.append builder (:content (asset/read-asset (asset/make-asset file)))))
       (assoc result :content builder))))
 
 (asset/register "dieter" map->Dieter)

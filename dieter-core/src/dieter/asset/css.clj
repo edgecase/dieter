@@ -1,5 +1,6 @@
 (ns dieter.asset.css
-  (:require [dieter.asset :as asset])
+  (:require [dieter.asset :as asset]
+            [dieter.settings :as settings])
   (:use [dieter.util :only [slurp-into string-builder]])
   (:require [clojure.string :as s]))
 
@@ -11,15 +12,15 @@
 
 (defrecord Css [file content]
   dieter.asset.Asset
-  (read-asset [this options]
+  (read-asset [this]
     (assoc this :content
            (slurp-into
             (string-builder "/* Source: " (:file this) " */\n")
             (:file this))))
 
   dieter.asset.Compressor
-  (compress [this options]
-    (if (:compress options)
+  (compress [this]
+    (if (settings/compress?)
       (compress-css (:content this))
       (:content this))))
 

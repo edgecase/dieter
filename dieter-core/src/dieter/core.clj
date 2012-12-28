@@ -32,17 +32,16 @@
 ;;; Entry points
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn asset-builder [app & [options]]
+(defn asset-builder [app]
   (fn [req]
-    (settings/with-options options
-      (let [uri (-> req :uri)]
-        (if (path/is-asset-uri? uri)
-          (if-let [cached (-> uri path/uncachify-uri path/uri->relpath find-and-cache-asset)]
-            (let [new-uri (path/make-relative-to-cache (str cached))]
-              (cache/add-cached-uri uri new-uri)
-              (app (assoc req :uri new-uri)))
-            (app req))
-          (app req))))))
+    (let [uri (-> req :uri)]
+      (if (path/is-asset-uri? uri)
+        (if-let [cached (-> uri path/uncachify-uri path/uri->relpath find-and-cache-asset)]
+          (let [new-uri (path/make-relative-to-cache (str cached))]
+            (cache/add-cached-uri uri new-uri)
+            (app (assoc req :uri new-uri)))
+          (app req))
+        (app req)))))
 
 (def known-mime-types {:hbs "text/javascript"
                        "less" "text/css"

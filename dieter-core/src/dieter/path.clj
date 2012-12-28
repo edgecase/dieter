@@ -56,14 +56,18 @@
     (.substring absfile (inc root-length))))
 
 
-;;;;;;;;;;;;;;;;;
-;;; Uri
-;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Asset Dir Relative Filename
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; An adrf is a string that represents a path, relative to the asset directory.
+;;; It is used as a canonical representation, and can easily by created from
+;;; URIs and filenames from directory traversals. It can also easily be
+;;; converted into any of these types of file.
 
 (defn is-asset-uri? [uri]
   (re-matches #"^/assets/.*" uri))
 
-(defn uri->arf [uri]
+(defn uri->adrf [uri]
   ;; uris start with "/"
   (str "." uri))
 

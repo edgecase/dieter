@@ -70,12 +70,12 @@
           (wrap-file-info known-mime-types)))))
 
 
-(defn link-to-asset [path & [options]]
+(defn link-to-asset [uri & [options]]
   "path should start under assets and not contain a leading slash
 ex. (link-to-asset \"javascripts/app.js\") => \"/assets/javascripts/app-12345678901234567890123456789012.js\""
   (settings/with-options options
-    (if-let [file (reduce #(or %1 (path/find-file (str "./assets/" path) %2)) nil (settings/asset-roots))]
-      (cache/cache-busting-uri (str "/assets/" path)))))
+    (if-let [file (reduce #(or %1 (path/find-file (str "./assets/" uri) %2)) nil (settings/asset-roots))]
+      (cache/cache-busting-uri (str "/assets/" uri)))))
 
 
 (defn precompile [options] ;; lein dieter-precompile uses this name

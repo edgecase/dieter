@@ -11,8 +11,8 @@
   (fs/walk
    dir
    (fn [root _ files]
-     (doseq [file files]
-       (f (->> file
+     (doseq [filename files]
+       (f (->> filename
                (fs/join root)))))))
 
 (defn load-precompiled-assets
@@ -26,7 +26,7 @@
                        (str "/"))
            uncached (->> cached
                          (path/uncachify-filename))]
-       (cache/add-cached-path uncached cached)))))
+       (cache/add-cached-uri uncached cached)))))
 
 (defn find-and-cache-asset [& args]
   (apply (ns-resolve 'dieter.core 'find-and-cache-asset)))

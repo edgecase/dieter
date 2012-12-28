@@ -23,7 +23,7 @@
                         (core/link-to-asset "javascripts/app.js" opts))))
 
       (testing "file previously generated"
-        (swap! cache/cached-paths assoc "/assets/javascripts/app.js"
+        (swap! cache/cached-uris assoc "/assets/javascripts/app.js"
                "/assets/javascripts/app-12345678901234567890af1234567890.js")
 
         (is (= "/assets/javascripts/app-12345678901234567890af1234567890.js"
@@ -44,9 +44,8 @@
              (core/link-to-asset "javascripts/manifest.js" opts))))))
 
 (deftest test-write-to-cache
-  (binding [settings/*settings*
-            (merge settings/*settings* {:asset-root "test/fixtures"
-                                        :cache-root "test/fixtures/asset-cache"})]
+  (settings/with-options  {:asset-root "test/fixtures"
+                           :cache-root "test/fixtures/asset-cache"}
     (let [content "var aString = 'of javascript';"
           request-path "./assets/javascripts/awesomesauce.js"
           cache-path (cache/write-to-cache content request-path)]
@@ -61,18 +60,18 @@
         builder (core/asset-builder app options)]
 
     (testing "plain file paths"
-      (reset! cache/cached-paths {})
+      (reset! cache/cached-uris {})
       (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js"
              (builder {:uri "/assets/javascripts/app.js"})))
       (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js"
-             (get @cache/cached-paths "/assets/javascripts/app.js")))
+             (get @cache/cached-uris "/assets/javascripts/app.js")))
       (.delete (io/file "test/fixtures/asset-cache/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js")))
 
     (testing "md5'd file paths"
       (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js"
              (builder {:uri "/assets/javascripts/app-12345678901234567890123456789012.js"})))
       (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js"
-             (get @cache/cached-paths "/assets/javascripts/app.js")))
+             (get @cache/cached-uris "/assets/javascripts/app.js")))
       (.delete (io/file "test/fixtures/asset-cache/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js")))
 
     (testing "binary files"

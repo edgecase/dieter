@@ -18,23 +18,29 @@
         [dieter.middleware.expires :only [wrap-file-expires-never]]
         [dieter.middleware.mime    :only [wrap-dieter-mime-types]]))
 
-(defn find-and-cache-asset [requested-path]
-  (when-let [file (reduce #(or %1 (path/find-file requested-path %2)) nil (settings/asset-roots))]
+(defn find-and-cache-asset [relpath]
+  ""
+  (when-let [file (reduce #(or %1 (path/find-file relpath %2)) nil (settings/asset-roots))]
     (-> file
         (asset/make-asset)
-        (asset/read-asset settings/*settings*)
-        (asset/compress settings/*settings*)
-        (cache/write-to-cache requested-path))))
+        (asset/read-asset)
+        (asset/compress)
+        (cache/write-to-cache relpath))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Entry points
+;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn asset-builder [app & [options]]
   (fn [req]
     (settings/with-options options
-      (let [path (path/uncachify-filename (:uri req))]
-        (if (re-matches #"^/assets/.*" path)
-          (if-let [cached (find-and-cache-asset (str "." path))]
-            (let [new-path (path/make-relative-to-cache (str cached))]
-              (cache/add-cached-path path new-path)
-              (app (assoc req :uri new-path)))
+      (let [uri (-> req :uri)]
+        (if (path/is-asset-uri? uri)
+          (if-let [cached (-> uri path/uncachify-uri path/uri->relpath find-and-cache-asset)]
+            (let [new-uri (path/make-relative-to-cache (str cached))]
+              (cache/add-cached-uri uri new-uri)
+              (app (assoc req :uri new-uri)))
             (app req))
           (app req))))))
 
@@ -65,20 +71,18 @@
           (wrap-dieter-mime-types)
           (wrap-file-info known-mime-types)))))
 
+
 (defn link-to-asset [path & [options]]
   "path should start under assets and not contain a leading slash
 ex. (link-to-asset \"javascripts/app.js\") => \"/assets/javascripts/app-12345678901234567890123456789012.js\""
   (settings/with-options options
     (if-let [file (reduce #(or %1 (path/find-file (str "./assets/" path) %2)) nil (settings/asset-roots))]
-      (cache/cache-busting-path (str "/assets/" path)))))
+      (cache/cache-busting-uri (str "/assets/" path)))))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Entry points
-;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn precompile [options] ;; lein dieter-precompile uses this name
   (precompile/precompile [options]))
+
 
 (defn init [options]
   (settings/with-options options

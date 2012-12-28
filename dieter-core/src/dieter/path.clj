@@ -6,6 +6,11 @@
             [fs])
   (:import [java.security MessageDigest]))
 
+;;; Paths are either files or uris. Files are relative or absolute, but always
+;;; represent a place in the filesystem. Uris are generally relative to the root
+;;; of the domain. Relative uris and relative files can be converted, but care
+;;; should be taken to not treat one as the other, as that's where errors happen.
+
 (defn search-dir
   "return the directory to use as the root of a search for relative-file"
   [relative-path start-dir]
@@ -38,6 +43,8 @@
     (str fname "." ext)
     filename))
 
+
+
 (defn make-relative-to-cache [path]
   (cstr/replace-first path (re-pattern (str ".*" (settings/cache-root))) ""))
 
@@ -47,3 +54,17 @@
         absfile (fs/abspath file)
         root-length (count absroot)]
     (.substring absfile (inc root-length))))
+
+
+;;;;;;;;;;;;;;;;;
+;;; Uri
+;;;;;;;;;;;;;;;;;
+
+(defn is-asset-uri? [uri]
+  (re-matches #"^/assets/.*" uri))
+
+(defn uri->relpath [uri]
+  (str "." uri))
+
+(defn uncachify-uri [uri] ;; same implementation
+  (uncachify-filename uri))

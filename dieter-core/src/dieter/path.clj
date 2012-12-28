@@ -2,45 +2,13 @@
   (:use dieter.settings)
   (:require [clojure.string :as cstr]
             [clojure.java.io :as io]
+            [dieter.settings :as settings]
             [fs])
   (:import [java.security MessageDigest]))
 
 (derive (class (make-array Byte/TYPE 0)) ::bytes)
 (derive java.lang.String ::string-like)
 (derive java.lang.StringBuilder ::string-like)
-
-;; Using strings for paths and files is error-prone, so use Uri and File instead
-(defprotocol UriProtocol
-             "Strings representing urls, that look like /assets/js/a.js.dieter"
-             (uncachify [this] "asd"))
-
-(defrecord Uri [path]
-  UriProtocol
-  (uncachify [this]
-    (if-let [[match fname hash ext] (re-matches #"^(.+)-([\da-f]{32})\.(\w+)$" (:path this))]
-      (str fname "." ext)
-      (:path this))))
-
-(defprotocol FileProtocol "Strings representing paths" (x [this] "asd"))
-(defrecord File [filename]
-  FileProtocol
-  (x [this]))
-
-
-
-(defmulti md5 class)
-
-(defmethod md5 ::bytes [bytes]
-  (let [digest (.digest (MessageDigest/getInstance "MD5") bytes)]
-    (format "%032x" (BigInteger. 1 digest))))
-
-(defmethod md5 ::string-like [string]
-  (md5 (.getBytes (str string) "UTF-8")))
-
-(defn add-md5 [path content]
-  (if-let [[match fname ext] (re-matches #"^(.+)\.(\w+)$" path)]
-    (str fname "-" (md5 content) "." ext)
-    (str path "-" (md5 content))))
 
 (defmulti write-file (fn [c f] (class c)))
 
@@ -50,13 +18,6 @@
 (defmethod write-file ::bytes [content file]
   (with-open [out (java.io.FileOutputStream. file)]
     (.write out content)))
-
-(defn cached-file-path
-  "given the request path, generate the filename of where the file
-will be cached. Cache is rooted at cache-root/assets/ so that
-static file middleware can be rooted at cache-root"
-  [requested-file content]
-  (add-md5 (cstr/replace-first requested-file "/assets/" (str "/" (cache-root) "/assets/")) content))
 
 (defn search-dir
   "return the directory to use as the root of a search for relative-file"
@@ -91,17 +52,8 @@ static file middleware can be rooted at cache-root"
     filename))
 
 (defn make-relative-to-cache [path]
-  (cstr/replace-first path (re-pattern (str ".*" (cache-root))) ""))
+  (cstr/replace-first path (re-pattern (str ".*" (settings/cache-root))) ""))
 
-(defmulti cache-busting-path
-  "in production mode, append a md5 of the file contents to the file path"
-  :cache-mode)
-
-(defmethod cache-busting-path :development [settings path] path)
-
-(defmethod cache-busting-path :production [settings path]
-  (or (get @cached-paths path)
-      (add-md5 path (str (java.util.Date.)))))
 
 (defn relative-path [root file]
   (let [absroot (fs/abspath root)

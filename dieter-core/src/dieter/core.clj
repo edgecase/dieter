@@ -4,6 +4,7 @@
             [dieter.settings :as settings]
             [dieter.asset :as asset]
             [dieter.path :as path]
+            [dieter.cache :as cache]
             [dieter.precompile :as precompile]
             [dieter.asset.coffeescript]
             [dieter.asset.css]
@@ -17,19 +18,13 @@
         [dieter.middleware.expires :only [wrap-file-expires-never]]
         [dieter.middleware.mime    :only [wrap-dieter-mime-types]]))
 
-(defn write-to-cache [content requested-path]
-  (let [dest (io/file (path/cached-file-path requested-path content))]
-    (io/make-parents dest)
-    (path/write-file content dest)
-    dest))
-
 (defn find-and-cache-asset [requested-path]
   (when-let [file (reduce #(or %1 (path/find-file requested-path %2)) nil (settings/asset-roots))]
     (-> file
         (asset/make-asset)
         (asset/read-asset settings/*settings*)
         (asset/compress settings/*settings*)
-        (write-to-cache requested-path))))
+        (cache/write-to-cache requested-path))))
 
 (defn asset-builder [app & [options]]
   (fn [req]
@@ -38,7 +33,7 @@
         (if (re-matches #"^/assets/.*" path)
           (if-let [cached (find-and-cache-asset (str "." path))]
             (let [new-path (path/make-relative-to-cache (str cached))]
-              (settings/add-cached-path path new-path)
+              (cache/add-cached-path path new-path)
               (app (assoc req :uri new-path)))
             (app req))
           (app req))))))
@@ -75,7 +70,7 @@
 ex. (link-to-asset \"javascripts/app.js\") => \"/assets/javascripts/app-12345678901234567890123456789012.js\""
   (settings/with-options options
     (if-let [file (reduce #(or %1 (path/find-file (str "./assets/" path) %2)) nil (settings/asset-roots))]
-      (path/cache-busting-path settings/*settings* (str "/assets/" path)))))
+      (cache/cache-busting-path (str "/assets/" path)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;

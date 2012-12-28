@@ -1,10 +1,9 @@
 (ns dieter.precompile
-  (:require [fs])
-  (:use [dieter.settings :as settings]
-        [dieter.asset :as asset]
-        [dieter.path :only [find-file  make-relative-to-cache
-                       uncachify-filename cache-busting-path write-file
-                       relative-path]]))
+  (:require [fs]
+            [dieter.cache :as cache]
+            [dieter.path :as path]
+            [dieter.asset :as asset]
+            [dieter.settings :as settings]))
 
 (defn foreach-file
   "Iterate through the assets directory"
@@ -23,20 +22,20 @@
    (settings/cache-root)
    (fn [cached]
      (let [cached (->> cached
-                       (relative-path (cache-root))
+                       (path/relative-path (settings/cache-root))
                        (str "/"))
            uncached (->> cached
-                         (uncachify-filename))]
-       (add-cached-path uncached cached)))))
+                         (path/uncachify-filename))]
+       (cache/add-cached-path uncached cached)))))
 
 (defn find-and-cache-asset [& args]
   (apply (ns-resolve 'dieter.core 'find-and-cache-asset)))
 
 (defn precompile [options] ;; lein dieter-precompile uses this name
   (settings/with-options options
-    (-> settings/*settings* :cache-root (fs/join "assets") fs/deltree)
-    (if (:precompiles settings/*settings*)
-      (doseq [filename (:precompiles settings/*settings*)]
+    (-> (settings/cache-root) (fs/join "assets") fs/deltree)
+    (if (settings/precompiles)
+      (doseq [filename (settings/precompiles)]
         (->> filename
              (str "./")
              (find-and-cache-asset)))
@@ -45,7 +44,7 @@
          (fs/join asset-root "assets")
          (fn [filename]
            (try (->> filename
-                     (relative-path asset-root)
+                     (path/relative-path asset-root)
                      (str "./")
                      (find-and-cache-asset))
                 (print ".")

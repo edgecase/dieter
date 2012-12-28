@@ -7,17 +7,11 @@
    :asset-root "resources"
    :cache-root "resources/asset-cache"
    :cache-mode :development
-   :hbs-mode   :handlebars
    :log-level  :normal})
 
 (defmacro with-options [options & body]
   `(binding [*settings* (merge *settings* ~options)]
      (do ~@body)))
-
-(defonce cached-paths (atom {}))
-
-(defn add-cached-path [path new-path]
-  (swap! cached-paths assoc path new-path))
 
 (defn asset-roots []
   (or
@@ -26,3 +20,12 @@
 
 (defn cache-root []
   (:cache-root *settings*))
+
+(defn precompiles []
+  (:precompiles *settings*))
+
+(defn compress? []
+  (:compress *settings*))
+
+(defn production? []
+  (-> *settings* :cache-mode (= :development) not))

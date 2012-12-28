@@ -1,6 +1,5 @@
 (ns dieter.asset.hamlcoffee
   (:require [dieter.pools :as pools]
-            [clojure.string :as cstr]
             [dieter.asset :as asset]
             [dieter.asset.javascript])
   (:use [dieter.jsengine :only (run-compiler)]))

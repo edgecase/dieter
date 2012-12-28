@@ -63,7 +63,8 @@
 (defn is-asset-uri? [uri]
   (re-matches #"^/assets/.*" uri))
 
-(defn uri->relpath [uri]
+(defn uri->arf [uri]
+  ;; uris start with "/"
   (str "." uri))
 
 (defn uncachify-uri [uri] ;; same implementation

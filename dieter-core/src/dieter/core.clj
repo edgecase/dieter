@@ -18,21 +18,24 @@
         [dieter.middleware.expires :only [wrap-file-expires-never]]
         [dieter.middleware.mime    :only [wrap-dieter-mime-types]]))
 
-(defn find-and-cache-asset [relpath]
+(defn find-and-cache-asset [arf]
   ""
-  (when-let [file (reduce #(or %1 (path/find-file relpath %2)) nil (settings/asset-roots))]
+  (when-let [file (reduce #(or %1 (path/find-file arf %2)) nil (settings/asset-roots))]
     (-> file
         (asset/make-asset)
         (asset/read-asset)
         (asset/compress)
-        (cache/write-to-cache relpath))))
+        (cache/write-to-cache arf))))
 
 (defn asset-builder [app]
   (fn [req]
     (let [uri (-> req :uri)]
       (if (path/is-asset-uri? uri)
-        (if-let [cached (-> uri path/uncachify-uri path/uri->relpath find-and-cache-asset)]
-          (let [new-uri (path/make-relative-to-cache (str cached))]
+        (if-let [cached-filename (-> uri
+                                     path/uncachify-uri
+                                     path/uri->arf
+                                     find-and-cache-asset)]
+          (let [new-uri (path/make-relative-to-cache cached-filename)]
             (cache/add-cached-uri uri new-uri)
             (app (assoc req :uri new-uri)))
           (app req))

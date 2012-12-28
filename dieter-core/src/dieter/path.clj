@@ -6,19 +6,6 @@
             [fs])
   (:import [java.security MessageDigest]))
 
-(derive (class (make-array Byte/TYPE 0)) ::bytes)
-(derive java.lang.String ::string-like)
-(derive java.lang.StringBuilder ::string-like)
-
-(defmulti write-file (fn [c f] (class c)))
-
-(defmethod write-file ::string-like [content file]
-  (spit file content))
-
-(defmethod write-file ::bytes [content file]
-  (with-open [out (java.io.FileOutputStream. file)]
-    (.write out content)))
-
 (defn search-dir
   "return the directory to use as the root of a search for relative-file"
   [relative-path start-dir]

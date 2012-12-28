@@ -9,8 +9,15 @@
 (derive java.lang.String ::string-like)
 (derive java.lang.StringBuilder ::string-like)
 
-(defmulti md5 class)
+(defmulti write-file (fn [c f] (class c)))
+(defmethod write-file ::string-like [content file]
+  (spit file content))
 
+(defmethod write-file ::bytes [content file]
+  (with-open [out (java.io.FileOutputStream. file)]
+    (.write out content)))
+
+(defmulti md5 class)
 (defmethod md5 ::bytes [bytes]
   (let [digest (.digest (MessageDigest/getInstance "MD5") bytes)]
     (format "%032x" (BigInteger. 1 digest))))
@@ -35,15 +42,16 @@ static file middleware can be rooted at cache-root"
 (defn write-to-cache [content requested-path]
   (let [dest (io/file (cached-file-path requested-path content))]
     (io/make-parents dest)
-    (path/write-file content dest)
+    (write-file content dest)
     dest))
 
-(defonce cached-paths (atom {}))
 
+(defonce cached-paths (atom {}))
 (defn add-cached-path [path new-path]
   (swap! cached-paths assoc path new-path))
 
 (defn cache-busting-path [path]
+  (println "cached-busting-path")
   "in production mode, append a md5 of the file contents to the file path"
   (if (settings/production?)
     (or (get @cached-paths path)

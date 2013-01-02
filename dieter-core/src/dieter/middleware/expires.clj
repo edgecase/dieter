@@ -34,7 +34,7 @@
   [app root-path & [opts]]
   (fn [req]
     (let [path (:uri req)
-          uncached (path/uncachify-filename path)]
+          uncached (path/uncachify-path path)]
       (if (and (re-matches #"^/assets/.*" path)
                (not (= path uncached)))
         (if-let [resp ((file/wrap-file app root-path) req)]

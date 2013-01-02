@@ -32,8 +32,8 @@
     (let [uri (-> req :uri)]
       (if (path/is-asset-uri? uri)
         (if-let [cached-filename (-> uri
-                                     path/uncachify-uri
                                      path/uri->adrf
+                                     path/uncachify-path
                                      find-and-cache-asset)]
           (let [new-uri (path/make-relative-to-cache cached-filename)]
             (cache/add-cached-uri uri new-uri)

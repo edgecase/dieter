@@ -38,10 +38,10 @@
 (defn file-ext [file]
   (last (cstr/split (str file) #"\.")))
 
-(defn uncachify-filename [filename]
-  (if-let [[match fname hash ext] (re-matches #"^(.+)-([\da-f]{32})\.(\w+)$" filename)]
+(defn uncachify-path [path]
+  (if-let [[match fname hash ext] (re-matches #"^(.+)-([\da-f]{32})\.(\w+)$" path)]
     (str fname "." ext)
-    filename))
+    path))
 
 
 

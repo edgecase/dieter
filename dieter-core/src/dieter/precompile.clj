@@ -25,7 +25,7 @@
                        (path/relative-path (settings/cache-root))
                        (str "/"))
            uncached (->> cached
-                         (path/uncachify-filename))]
+                         (path/uncachify-path))]
        (cache/add-cached-uri uncached cached)))))
 
 (defn find-and-cache-asset [& args]

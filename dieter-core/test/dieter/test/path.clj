@@ -61,10 +61,10 @@
   (is (= "/assets/foo.js-acbd18db4cc2f85cedef654fccc4a4d8.txt" (cache/add-md5 "/assets/foo.js.txt" "foo")))
   (is (= "/assets/foo-acbd18db4cc2f85cedef654fccc4a4d8" (cache/add-md5 "/assets/foo" "foo"))))
 
-(deftest test-uncachfy-filename
-  (is (= "/assets/foo.js" (path/uncachify-filename "/assets/foo-acbd18db4cc2f85cedef654fccc4a4d8.js")))
-  (is (= "/assets/foo.js.txt" (path/uncachify-filename "/assets/foo.js-acbd18db4cc2f85cedef654fccc4a4d8.txt")))
-  (is (= "/assets/foo.js" (path/uncachify-filename "/assets/foo.js"))))
+(deftest test-uncachfy-path
+  (is (= "/assets/foo.js" (path/uncachify-path "/assets/foo-acbd18db4cc2f85cedef654fccc4a4d8.js")))
+  (is (= "/assets/foo.js.txt" (path/uncachify-path "/assets/foo.js-acbd18db4cc2f85cedef654fccc4a4d8.txt")))
+  (is (= "/assets/foo.js" (path/uncachify-path "/assets/foo.js"))))
 
 (deftest test-make-relative-to-cache
   (is (= "/assets/javascripts/awesomesauce-8be397d9c4a3c4ad35f33963fedad96b.js"

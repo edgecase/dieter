@@ -18,13 +18,7 @@
   (testing "valid javascript"
     (let [uncompressed-js " var foo = 'bar'; "
           asset (Js. "filename.js" uncompressed-js)]
-      (testing "compression disabled"
-        (settings/with-options {:compress false}
-          (is (= uncompressed-js (asset/compress asset)))))
-
-      (testing "compression enabled"
-        (settings/with-options {:compress true}
-          (is (= "var foo=\"bar\";" (asset/compress asset)))))))
+      (is (= "var foo=\"bar\";" (asset/compress asset)))))
 
   (testing "with compile errors"
     (let [uncompressed-with-errors "var foo = [1, 2, 3, ];"

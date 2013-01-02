@@ -20,8 +20,6 @@
 
   dieter.asset.Compressor
   (compress [this]
-    (if (settings/compress?)
-      (compress-css (:content this))
-      (:content this))))
+    (compress-css (:content this))))
 
 (asset/register "css" map->Css)

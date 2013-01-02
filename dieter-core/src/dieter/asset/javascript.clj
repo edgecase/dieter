@@ -40,8 +40,6 @@
 
   dieter.asset.Compressor
   (compress [this]
-    (if (settings/compress?)
-      (compress-js (:file this) (:content this))
-      (:content this))))
+    (compress-js (:file this) (:content this))))
 
 (asset/register "js" map->Js)

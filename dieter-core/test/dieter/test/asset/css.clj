@@ -17,15 +17,7 @@
       (is (h/has-text? (:content asset) "text-decoration: blink;")))))
 
 (deftest test-compress-css
-
   (let [uncompressed-css "   .content .p {\n color: #fff;\n }"
         asset (Css. "filename.css" uncompressed-css)]
-    (testing "compression disabled"
-      (settings/with-options {:compress false}
-        (is (= uncompressed-css
-               (asset/compress asset)))))
-
-    (testing "compression enabled"
-      (settings/with-options {:compress true}
-        (is (= ".content .p { color: #fff; }"
-               (asset/compress asset)))))))
+    (is (= ".content .p { color: #fff; }"
+           (asset/compress asset)))))

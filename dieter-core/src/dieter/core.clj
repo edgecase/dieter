@@ -18,13 +18,14 @@
         [dieter.middleware.expires :only [wrap-file-expires-never]]
         [dieter.middleware.mime    :only [wrap-dieter-mime-types]]))
 
+
 (defn find-and-cache-asset [adrf]
   ""
   (when-let [file (reduce #(or %1 (path/find-file adrf %2)) nil (settings/asset-roots))]
     (-> file
         (asset/make-asset)
         (asset/read-asset)
-        (asset/compress)
+        (#(if (settings/compress?) (asset/compress %) %))
         (cache/write-to-cache adrf))))
 
 (defn asset-builder [app]

@@ -16,15 +16,8 @@ Must return final contents of the file for output.
 Contents can be a String, StringBuilder, or byte[]"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
-;;; Register assets
+;;; Memoizing already compiled assets
 ;;;;;;;;;;;;;;;;;;;;;;;
-
-(def types "mapping of file types to constructor functions"
-  (atom {}))
-
-(defn register [ext constructor-fn]
-  "register a new asset constructor for files with the file extension ext"
-  (swap! types assoc ext constructor-fn))
 
 (def memoized (atom {}))
 (defn memoize-file [file f]
@@ -46,6 +39,17 @@ Contents can be a String, StringBuilder, or byte[]"))
          (swap! memoized assoc filename {:content new-content
                                          :timestamp (time/now)}))
         new-content))))
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;;; Register assets
+;;;;;;;;;;;;;;;;;;;;;;;
+
+(def types "mapping of file types to constructor functions"
+  (atom {}))
+
+(defn register [ext constructor-fn]
+  "register a new asset constructor for files with the file extension ext"
+  (swap! types assoc ext constructor-fn))
 
 (defn make-asset [file]
   "returns a newly constructed asset of the proper type as determined by the file extension.

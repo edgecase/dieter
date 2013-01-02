@@ -39,7 +39,7 @@ static file middleware can be rooted at cache-root"
            content))
 
 (defn write-to-cache [content adrf]
-  (let [dest (io/file (cached-file-path relpath content))]
+  (let [dest (io/file (cached-file-path adrf content))]
     (io/make-parents dest)
     (write-file content dest)
     dest))

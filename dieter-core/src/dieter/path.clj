@@ -73,13 +73,9 @@
 (defn find-file [filename]
   {:post [(or (nil? %) (.exists %))]}
   (let [file (io/file filename)]
-    (println "finding file: " filename)
     (when (.exists file)
-      (println "found file: " filename)
       file)))
 
 (defn find-asset [adrf]
   {:post [(or (nil? %) (-> % io/file .exists))]}
-  (let [x (reduce #(or %1 (find-file (adrf->filename %2 adrf))) nil (settings/asset-roots))]
-    (println "found asset: " x)
-    x))
+  (reduce #(or %1 (find-file (adrf->filename %2 adrf))) nil (settings/asset-roots)))

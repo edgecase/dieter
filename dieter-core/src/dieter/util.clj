@@ -1,5 +1,6 @@
 (ns dieter.util
-  (:require [clojure.java.io :as io]))
+  (:require [clojure.java.io :as io]
+            [clojure.pprint :as pprint]))
 
 (defn slurp-into [#^StringBuilder builder f]
   "read file contents into an existing string builder"
@@ -16,3 +17,11 @@
     (doseq [arg args]
       (.append builder arg))
     builder))
+
+(defmacro inspect
+  "prints the expression '<name> is <value>', and returns the value"
+  [value]
+  `(let [value# (quote ~value)
+         result# ~value]
+     (println value# "is" (with-out-str (pprint/pprint result#)))
+     result#))

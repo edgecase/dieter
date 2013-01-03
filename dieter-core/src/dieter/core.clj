@@ -5,6 +5,7 @@
             [dieter.asset :as asset]
             [dieter.path :as path]
             [dieter.cache :as cache]
+            [dieter.util]
             [dieter.precompile :as precompile]
             [dieter.asset.coffeescript]
             [dieter.asset.css]
@@ -24,7 +25,9 @@
     (-> file
         (asset/make-asset)
         (asset/read-asset)
-        (#(if (settings/compress?) (asset/compress %) (:content %)))
+        (#(if (settings/compress?)
+            (asset/compress %)
+            (:content %)))
         (cache/write-to-cache adrf))))
 
 (defn asset-builder [app]

@@ -40,8 +40,8 @@
              (core/link-to-asset "javascripts/app.js" opts)))
       (is (= "/assets/images/Elsa.jpg"
              (core/link-to-asset "images/Elsa.jpg" opts)))
-      (is (= "/assets/javascripts/manifest.js"
-             (core/link-to-asset "javascripts/manifest.js" opts))))))
+      (is (= "/assets/javascripts/manifest.js.dieter"
+             (core/link-to-asset "javascripts/manifest.js.dieter" opts))))))
 
 (deftest test-write-to-cache
   (settings/with-options  {:asset-root "test/fixtures"

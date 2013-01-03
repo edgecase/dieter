@@ -2,8 +2,9 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as s]
             [dieter.asset :as asset]
-            [dieter.path :as path])
-  (:use [dieter.util :only [slurp-into string-builder]])
+            [dieter.path :as path]
+            [fs])
+  (:use [dieter.util :only [slurp-into string-builder inspect]])
   (:import [java.io FileReader PushbackReader FileNotFoundException]))
 
 (defn load-manifest
@@ -13,40 +14,30 @@ namely a vector or list of file names or directory paths."
   (let [stream (PushbackReader. (FileReader. file))]
     (read stream)))
 
-(defn distinct-by
-  "Returns a lazy sequence of the elements of coll with duplicates removed.
-Duplicates are found by comparing the results of the comparison fn.
-Implementation stolen from clojure.core/distinct"
-  [fun coll]
-    (let [step (fn step [xs seen]
-                   (lazy-seq
-                    ((fn [[f :as xs] seen]
-                      (when-let [s (seq xs)]
-                        (if (contains? seen (fun f))
-                          (recur (rest s) seen)
-                          (cons f (step (rest s) (conj seen (fun f)))))))
-                     xs seen)))]
-      (step coll #{})))
+(defn recursive-files [dir]
+  (->> dir
+       fs/iterdir
+       (map (fn [[root _ files]]
+              (doall (map #(fs/join root %)
+                          (sort files))))))) ;; sort because of file-ordering bugs
 
 (defn manifest-files
-  "return a sequence of files specified by the given manifest.
-Duplicates are included only once, the first time they are referenced.
-Files not found are not returned and no error is indicated.
-We should probably consider outputting some kind of warning in that case."
+  "return a sequence of files specified by the given manifest."
   [manifest-file]
   (->> (load-manifest manifest-file)
        (map (fn [filename]
-              (let [file (if (re-matches #".*/$" filename)
-                           (file-seq (path/search-dir filename (.getParentFile manifest-file)))
-                           (path/find-file filename (.getParentFile manifest-file)))]
-
-                (or file (throw (FileNotFoundException. (str "Cannot find " filename " from " manifest-file)))))))
+              (let [dir (.getParent manifest-file)
+                    file (path/find-file filename :root dir)]
+                (when (nil? file)
+                  (throw (FileNotFoundException. (str "Could not find " filename " from " manifest-file))))
+                (if (-> file io/file .isDirectory)
+                  (recursive-files file)
+                  file))))
+       doall
        flatten
-       (remove #(or (nil? %)
-                    (.isDirectory %)
-                    (re-matches #".*\.swp$" (.getCanonicalPath %))
-                    (re-matches #"/.*\.#.*$" (.getCanonicalPath %))))
-       (distinct-by #(.getCanonicalPath %))))
+       (map io/file)
+       (remove #(or (re-matches #".*\.swp$" (.getCanonicalPath %))
+                    (re-matches #"/.*\.#.*$" (.getCanonicalPath %))))))
 
 (defrecord Dieter [file]
   dieter.asset.Asset

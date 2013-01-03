@@ -47,8 +47,8 @@
   (settings/with-options  {:asset-root "test/fixtures"
                            :cache-root "test/fixtures/asset-cache"}
     (let [content "var aString = 'of javascript';"
-          request-path "/assets/javascripts/awesomesauce.js"
-          cache-path (cache/write-to-cache content request-path)]
+          adrf "javascripts/awesomesauce.js"
+          cache-path (cache/write-to-cache content adrf)]
       (is (= "test/fixtures/asset-cache/assets/javascripts/awesomesauce-8be397d9c4a3c4ad35f33963fedad96b.js" (str cache-path)))
       (is (= content (slurp cache-path)))
       (.delete cache-path))))

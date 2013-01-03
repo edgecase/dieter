@@ -35,7 +35,7 @@
 will be cached. Cache is rooted at cache-root/assets/ so that
 static file middleware can be rooted at cache-root"
   [adrf content]
-  (add-md5 (str (settings/cache-root) adrf)
+  (add-md5 (path/adrf->filename (settings/cache-root) adrf)
            content))
 
 (defn write-to-cache [content adrf]

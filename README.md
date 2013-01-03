@@ -44,8 +44,7 @@ For example, a file named assets/javascripts/app.js.dieter with the following co
 ]
 ```
 
-Dieter would look for base.js in the same directory, framework.js in any subdirectory,
-and then concatenate each file from the lib and models directories.
+Dieter would look for base.js in the same directory, and then concatenate each file from the lib and models directories.
 
 ## Linkage
 
@@ -65,9 +64,9 @@ In order to include links to your assets you may use the link-to-asset function.
     :log-level  :normal                 ; or :quiet
     :precompiles ["./assets/myfile.js.dieter"] ; list of files for `lein dieter-precompile` to precompile. If left blank (the default), all files will be precompiled, and errors will be ignored.
 
-Dieter searches for your assets in [asset-root]/assets.
+Dieter checks for your assets in [asset-root]/assets.
 Compiled assets are always written to the cache-root. In production mode this
-means that the cached assets are served from the cache. However development mode
+means that the cached assets are served from the cache. However development-mode
 assets are always regenerated.
 
 Note you need to pass your config options to asset-pipeline as well as link-to-asset.
@@ -88,10 +87,14 @@ Copyright (C) 2012 EdgeCase
 
 Distributed under the Eclipse Public License, the same as Clojure.
 
-## Breaking Changes
+## Changes
 
-### Version 0.2.0
-* Handlebars templates are now a separate library. [dieter-ember](https://github.com/edgecase/dieter-ember)
+### Version 0.4.0
+
+* Remove support for searching for filenames, because it has very sharp edges
+* Throw a FileNotFoundException instead of failing silently when files in a manifest aren't found
+* Directory contents are listed in alphabetical order (avoids intermittent failures due to file directory order on Linux)
+* Rewritten internals, with more reliable and consistent string and filename handling
 
 ### Version 0.3.0
 * Use v8 for Less, Hamlcoffee and CoffeeScript
@@ -107,3 +110,6 @@ Distributed under the Eclipse Public License, the same as Clojure.
 * Update to latest Rhino for better performance
 * Support for `lein dieter-precompile`
 * Add mime type headers for dieter files
+
+### Version 0.2.0
+* Handlebars templates are now a separate library. [dieter-ember](https://github.com/edgecase/dieter-ember)

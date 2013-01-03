@@ -7,25 +7,19 @@
 
 (deftest test-cached-file-path
   (is (= "resources/asset-cache/assets/foo-d259b08a2dfaf8bf776cbadbe85442d3.js"
-         (cache/cached-file-path "/assets/foo.js" "content string"))))
+         (cache/cached-file-path "foo.js" "content string"))))
 
 (deftest test-find-asset
   (settings/with-options {:asset-root "test/fixtures"}
     (testing "relative path"
-      (let [file (path/find-asset "./javascripts/lib/framework.js")]
-        (is (re-matches #".*test/fixtures/assets/javascripts/(\./)?lib/framework.js$"
+      (let [file (io/file (path/find-asset "./javascripts/lib/framework.js"))]
+        (is (re-matches #".*test/fixtures/assets/\./javascripts/lib/framework.js$"
                         (.getPath file)))
         (is (.exists file)))
       (is (nil? (path/find-asset "./framework.js"))))
 
     (testing "no file exists"
-      (is (nil? (path/find-asset "dontfindme.txt")))))
-
-  (settings/with-options {:cache-root "test/fixtures"}
-   (testing "different file extension"
-     (let [file (path/find-asset "basic.css")]
-       (is (re-matches #".*test/fixtures/assets/stylesheets/basic.less$" (.getPath file)))
-       (is (.exists file))))))
+      (is (nil? (path/find-asset "dontfindme.txt"))))))
 
 (defn file= [f1 f2]
   (= (.getCanonicalPath (io/file f1))

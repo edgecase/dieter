@@ -20,8 +20,7 @@
 
 
 (defn find-and-cache-asset [adrf]
-  ""
-  (when-let [file (reduce #(or %1 (path/find-file adrf %2)) nil (settings/asset-roots))]
+  (when-let [file (path/find-asset adrf)]
     (-> file
         (asset/make-asset)
         (asset/read-asset)
@@ -74,12 +73,12 @@
           (wrap-file-info known-mime-types)))))
 
 
-(defn link-to-asset [uri & [options]]
+(defn link-to-asset [adrf & [options]]
   "path should start under assets and not contain a leading slash
 ex. (link-to-asset \"javascripts/app.js\") => \"/assets/javascripts/app-12345678901234567890123456789012.js\""
   (settings/with-options options
-    (if-let [file (reduce #(or %1 (path/find-file (str "./assets/" uri) %2)) nil (settings/asset-roots))]
-      (cache/cache-busting-uri (str "/assets/" uri)))))
+    (if (path/find-asset adrf)
+      (-> adrf path/adrf->uri cache/cache-busting-uri))))
 
 
 (defn precompile [options] ;; lein dieter-precompile uses this name

@@ -5,7 +5,7 @@
   (:require [clojure.java.io :as io]))
 
 (deftest test-cached-file-path
-  (is (= "/resources/asset-cache/assets/foo-d259b08a2dfaf8bf776cbadbe85442d3.js"
+  (is (= "resources/asset-cache/assets/foo-d259b08a2dfaf8bf776cbadbe85442d3.js"
          (cache/cached-file-path "/assets/foo.js" "content string"))))
 
 (deftest test-find-file

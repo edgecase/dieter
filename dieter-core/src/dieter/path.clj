@@ -6,34 +6,11 @@
             [fs])
   (:import [java.security MessageDigest]))
 
-;;; Paths are either files or uris. Files are relative or absolute, but always
-;;; represent a place in the filesystem. Uris are generally relative to the root
-;;; of the domain. Relative uris and relative files can be converted, but care
-;;; should be taken to not treat one as the other, as that's where errors happen.
-
-(defn search-dir
-  "return the directory to use as the root of a search for relative-file"
-  [relative-path start-dir]
-  (let [relative-file (io/file relative-path)
-        relative-parent (.getParent relative-file)]
-    (cond
-     (re-matches #".*/$" relative-path) (io/file start-dir relative-path)
-     relative-parent (io/file start-dir relative-parent)
-     :else (io/file start-dir))))
-
-(defn find-in-files [filename files]
-  (let [[_ basename] (re-matches #"(^.*?)(?:\.\w+)?$" filename)
-        pattern (re-pattern (str "^" basename ".*$"))]
-    (or (first (filter #(= filename (.getName %)) files))
-        (first (filter #(re-matches pattern (.getName %)) files)))))
-
-(defn find-file [partial-path start-dir]
-  (let [relative-file (io/file partial-path)
-        filename (.getName relative-file)
-        search-dir (search-dir partial-path start-dir)]
-    (if (re-matches #"^\./.*" partial-path)
-      (find-in-files filename (.listFiles search-dir))
-      (find-in-files filename (file-seq search-dir)))))
+;;;; TODO
+;;; so manifests need to call find-file from their own start-dir, not the
+;;; asset-root. So this needs to be flexible to support both. However, it should
+;;; never be splitting things apart, and "./" isn't neceessary (it should be
+;;; handled in the manifest).
 
 (defn file-ext [file]
   (last (cstr/split (str file) #"\.")))
@@ -42,8 +19,6 @@
   (if-let [[match fname hash ext] (re-matches #"^(.+)-([\da-f]{32})\.(\w+)$" path)]
     (str fname "." ext)
     path))
-
-
 
 (defn make-relative-to-cache [path]
   (cstr/replace-first path (re-pattern (str ".*" (settings/cache-root))) ""))
@@ -69,7 +44,8 @@
 ;;; An "Asset-directory-relative filename" (adrf) represents a path, relative
 ;;; to the asset directory. It is used as a canonical representation, and can
 ;;; easily by created from URIs and filenames from directory traversals. It can
-;;; also easily be converted into any of these types of file.
+;;; also easily be converted into any of these types of file. It does not
+;;; include the string "/assets/".
 
 ;;; A URI represents the part of the URI that we use in dieter. If a whole URI
 ;;; is prototcol://hostname/path, then we use URI to represent just the "path"
@@ -84,8 +60,26 @@
   (re-matches #"^/assets/.*" uri))
 
 (defn uri->adrf [uri]
-  {:pre [(is-asset-uri? %)]} ;; uris start with "/assets"
-  (cstr/replace-first "/assets/" ""))
+  {:pre [(is-asset-uri? uri)]} ;; uris start with "/assets"
+  (.substring uri 8))
 
-(defn uncachify-uri [uri] ;; same implementation
-  (uncachify-filename uri))
+(defn adrf->uri [adrf]
+  {:post [(is-asset-uri? %)]} ;; uris start with "/assets"
+  (str "/assets/" adrf))
+
+(defn adrf->filename [root adrf]
+  (str root "/assets/" adrf))
+
+(defn find-file [filename]
+  {:post [(or (nil? %) (.exists %))]}
+  (let [file (io/file filename)]
+    (println "finding file: " filename)
+    (when (.exists file)
+      (println "found file: " filename)
+      file)))
+
+(defn find-asset [adrf]
+  {:post [(or (nil? %) (-> % io/file .exists))]}
+  (let [x (reduce #(or %1 (find-file (adrf->filename %2 adrf))) nil (settings/asset-roots))]
+    (println "found asset: " x)
+    x))

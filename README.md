@@ -95,6 +95,7 @@ Distributed under the Eclipse Public License, the same as Clojure.
 * Throw a FileNotFoundException instead of failing silently when files in a manifest aren't found
 * Directory contents are listed in alphabetical order (avoids intermittent failures due to file directory order on Linux)
 * Rewritten internals, with more reliable and consistent string and filename handling
+* Referring to X.js.dieter as X.js is no longer supported
 
 ### Version 0.3.0
 * Use v8 for Less, Hamlcoffee and CoffeeScript

@@ -11,7 +11,7 @@
     (let [opts {:cache-mode :development :asset-root "test/fixtures" :cache-root "test/fixtures/asset-cache"}]
       (is (nil? (core/link-to-asset "javascripts/dontfindme.js" opts)))
       (is (= "/assets/javascripts/app.js" (core/link-to-asset "javascripts/app.js" opts)))
-      (is (= "/assets/javascripts/manifest.js" (core/link-to-asset "javascripts/manifest.js" opts)))))
+      (is (= "/assets/javascripts/manifest.js.dieter" (core/link-to-asset "javascripts/manifest.js.dieter" opts)))))
 
   (testing "production mode"
     (let [opts {:cache-mode :production

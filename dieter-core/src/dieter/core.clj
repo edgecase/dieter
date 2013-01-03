@@ -24,7 +24,7 @@
     (-> file
         (asset/make-asset)
         (asset/read-asset)
-        (#(if (settings/compress?) (asset/compress %) %))
+        (#(if (settings/compress?) (asset/compress %) (:content %)))
         (cache/write-to-cache adrf))))
 
 (defn asset-builder [app]

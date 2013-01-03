@@ -70,12 +70,14 @@
 (defn adrf->filename [root adrf]
   (str root "/assets/" adrf))
 
-(defn find-file [filename]
+(defn find-file [filename & {:keys [root]}]
   {:post [(or (nil? %) (.exists %))]}
-  (let [file (io/file filename)]
+  (let [file (io/file root filename)]
     (when (.exists file)
       file)))
 
 (defn find-asset [adrf]
   {:post [(or (nil? %) (-> % io/file .exists))]}
-  (reduce #(or %1 (find-file (adrf->filename %2 adrf))) nil (settings/asset-roots)))
+  (reduce #(or %1 (find-file (adrf->filename %2 adrf)))
+          nil
+          (settings/asset-roots)))

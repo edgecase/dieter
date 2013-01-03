@@ -60,18 +60,18 @@
           builder (core/asset-builder app)]
       (testing "plain file paths"
         (reset! cache/cached-uris {})
-        (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js"
+        (is (= "/assets/javascripts/app-0dbd0f18020cf56c28846c40b56b5baa.js"
                (builder {:uri "/assets/javascripts/app.js"})))
-        (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js"
+        (is (= "/assets/javascripts/app-0dbd0f18020cf56c28846c40b56b5baa.js"
                (get @cache/cached-uris "/assets/javascripts/app.js")))
-        (.delete (io/file "test/fixtures/asset-cache/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js")))
+        (.delete (io/file "test/fixtures/asset-cache/assets/javascripts/app-0dbd0f18020cf56c28846c40b56b5baa.js")))
 
       (testing "md5'd file paths"
-        (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js"
+        (is (= "/assets/javascripts/app-0dbd0f18020cf56c28846c40b56b5baa.js"
                (builder {:uri "/assets/javascripts/app-12345678901234567890123456789012.js"})))
-        (is (= "/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js"
+        (is (= "/assets/javascripts/app-0dbd0f18020cf56c28846c40b56b5baa.js"
                (get @cache/cached-uris "/assets/javascripts/app.js")))
-        (.delete (io/file "test/fixtures/asset-cache/assets/javascripts/app-48587d6fc68f221f8fa67a63f4bb4b09.js")))
+        (.delete (io/file "test/fixtures/asset-cache/assets/javascripts/app-0dbd0f18020cf56c28846c40b56b5baa.js")))
 
       (testing "binary files"
         (is (= "/assets/images/dieter-102c15cd1a2dfbe24b8a5f12f2671fc8.jpeg"

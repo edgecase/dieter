@@ -75,4 +75,4 @@
       (manifest/manifest-files manifest)
       (is false) ; shouldnt hit
       (catch Exception e
-        (is (h/has-text? (.toString e) (str "Cannot find missing_file from " filename)))))))
+        (is (h/has-text? (.toString e) (str "Could not find missing_test from " filename)))))))

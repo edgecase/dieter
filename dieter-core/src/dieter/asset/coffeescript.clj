@@ -6,12 +6,14 @@
 
 (def pool (pools/make-pool))
 
+(defn compile-coffeescript [file]
+  (run-compiler pool
+                ["coffee-script.js" "coffee-wrapper.js"]
+                "compileCoffeeScript"
+                file))
+
 (defn preprocess-coffeescript [file]
-  (asset/memoize-file file
-                      #(run-compiler pool
-                                     ["coffee-script.js" "coffee-wrapper.js"]
-                                     "compileCoffeeScript"
-                                     file)))
+  (asset/memoize-file file compile-coffeescript))
 
 (defrecord Coffee [file]
   dieter.asset.Asset

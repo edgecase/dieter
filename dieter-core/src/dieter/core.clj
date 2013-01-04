@@ -30,19 +30,20 @@
             (:content %)))
         (cache/write-to-cache adrf))))
 
-(defn asset-builder [app]
+(defn asset-builder [app & [options]]
   (fn [req]
-    (let [uri (-> req :uri)]
-      (if (path/is-asset-uri? uri)
-        (if-let [cached-filename (-> uri
-                                     path/uri->adrf
-                                     path/uncachify-path
-                                     find-and-cache-asset)]
-          (let [new-uri (path/make-relative-to-cache cached-filename)]
-            (cache/add-cached-uri uri new-uri)
-            (app (assoc req :uri new-uri)))
-          (app req))
-        (app req)))))
+    (settings/with-options options
+      (let [uri (-> req :uri)]
+        (if (path/is-asset-uri? uri)
+          (if-let [cached-filename (-> uri
+                                       path/uri->adrf
+                                       path/uncachify-path
+                                       find-and-cache-asset)]
+            (let [new-uri (path/make-relative-to-cache cached-filename)]
+              (cache/add-cached-uri uri new-uri)
+              (app (assoc req :uri new-uri)))
+            (app req))
+          (app req))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Entry points
@@ -64,13 +65,13 @@
     (if (settings/production?)
       (-> app
           (wrap-file (settings/cache-root))
-          (asset-builder)
+          (asset-builder options)
           (wrap-file-expires-never (settings/cache-root))
           (wrap-file-info known-mime-types)
           (wrap-dieter-mime-types))
       (-> app
           (wrap-file (settings/cache-root))
-          (asset-builder)
+          (asset-builder options)
           (wrap-file-info known-mime-types)
           (wrap-dieter-mime-types)
           (wrap-file-info known-mime-types)))))

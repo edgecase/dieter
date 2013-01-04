@@ -18,10 +18,10 @@
       (.append builder arg))
     builder))
 
-(defmacro inspect
-  "prints the expression '<name> is <value>', and returns the value"
-  [value]
-  `(let [value# (quote ~value)
-         result# ~value]
-     (println value# "is" (with-out-str (pprint/pprint result#)))
-     result#))
+;; (defmacro inspect
+;;   "prints the expression '<name> is <value>', and returns the value"
+;;   [value]
+;;   `(let [value# (quote ~value)
+;;          result# ~value]
+;;      (println value# "is" (with-out-str (pprint/pprint result#)))
+;;      result#))

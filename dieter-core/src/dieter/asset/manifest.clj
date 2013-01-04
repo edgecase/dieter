@@ -4,7 +4,7 @@
             [dieter.asset :as asset]
             [dieter.path :as path]
             [fs])
-  (:use [dieter.util :only [slurp-into string-builder inspect]])
+  (:use [dieter.util :only [slurp-into string-builder]])
   (:import [java.io FileReader PushbackReader FileNotFoundException]))
 
 (defn load-manifest

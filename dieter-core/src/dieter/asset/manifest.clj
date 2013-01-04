@@ -39,14 +39,20 @@ namely a vector or list of file names or directory paths."
        (remove #(or (re-matches #".*\.swp$" (.getCanonicalPath %))
                     (re-matches #"/.*\.#.*$" (.getCanonicalPath %))))))
 
+(defn compile-manifest [file]
+  (let [builder (string-builder)
+        target-name (s/replace file #".dieter$" "")
+        result (asset/make-asset (io/file target-name))]
+    (doseq [mf (manifest-files file)]
+      (->> mf
+           asset/make-asset
+           asset/read-asset
+           :content
+           (.append builder)))
+    (assoc result :content builder)))
+
 (defrecord Dieter [file]
   dieter.asset.Asset
-  (read-asset [this]
-    (let [builder (string-builder)
-          target-name (s/replace (:file this) #".dieter$" "")
-          result (asset/make-asset (io/file target-name))]
-      (doseq [file (manifest-files (:file this))]
-        (.append builder (:content (asset/read-asset (asset/make-asset file)))))
-      (assoc result :content builder))))
+  (read-asset [this] (compile-manifest (:file this))))
 
 (asset/register "dieter" map->Dieter)

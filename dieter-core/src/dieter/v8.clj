@@ -30,7 +30,6 @@
 (def ^:dynamic context nil)
 
 (defn create-context [preloads]
-  (println "loading context")
   (let [cx (v8/create-context)]
     (v8/run-script-in-context cx (load-vendor preloads))
     cx))

@@ -1,4 +1,4 @@
-(defproject dieter "0.3.0"
+(defproject dieter "0.4.0"
   :description "Asset pipeline ring middleware"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}

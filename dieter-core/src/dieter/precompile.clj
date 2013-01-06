@@ -29,15 +29,14 @@
        (cache/add-cached-uri uncached cached)))))
 
 (defn find-and-cache-asset [& args]
-  (apply (ns-resolve 'dieter.core 'find-and-cache-asset)))
+  (apply (ns-resolve 'dieter.core 'find-and-cache-asset) args))
 
-(defn precompile [options] ;; lein dieter-precompile uses this name
+(defn precompile [options]
   (settings/with-options options
     (-> (settings/cache-root) (fs/join "assets") fs/deltree)
     (if (settings/precompiles)
       (doseq [filename (settings/precompiles)]
         (->> filename
-             (str "./")
              (find-and-cache-asset)))
       (doseq [asset-root (settings/asset-roots)]
         (foreach-file

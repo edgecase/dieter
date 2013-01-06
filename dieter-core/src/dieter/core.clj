@@ -86,7 +86,7 @@ ex. (link-to-asset \"javascripts/app.js\") => \"/assets/javascripts/app-12345678
 
 
 (defn precompile [options] ;; lein dieter-precompile uses this name
-  (precompile/precompile [options]))
+  (precompile/precompile options))
 
 
 (defn init [options]

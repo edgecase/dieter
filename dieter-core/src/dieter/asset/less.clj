@@ -10,8 +10,8 @@
 (defn preprocess-less [file]
   (run-compiler pool
                 (if (-> settings/*settings* :engine (= :rhino))
-                  ["less-rhino-wrapper.js" "less-wrapper.js" "less-rhino-1.3.0.js"]
-                  ["less-wrapper.js" "less-rhino-1.3.0.js"])
+                  ["less-rhino-wrapper.js" "less-wrapper.js" "less-rhino-1.3.3.js"]
+                  ["less-wrapper.js" "less-rhino-1.3.3.js"])
                 "compileLess"
                 file))
 

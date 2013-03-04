@@ -1,7 +1,5 @@
 (ns dieter.core
-  (:require [clojure.java.io :as io]
-            [fs]
-            [dieter.settings :as settings]
+  (:require [dieter.settings :as settings]
             [dieter.asset :as asset]
             [dieter.path :as path]
             [dieter.cache :as cache]

@@ -1,9 +1,7 @@
 (ns dieter.asset.manifest
   (:require [clojure.java.io :as io]
             [clojure.string :as s]
-            [dieter.asset :as asset]
-            [dieter.path :as path]
-            [fs])
+            [dieter.asset :as asset])
   (:use [dieter.util :only [slurp-into string-builder]])
   (:import [java.io FileReader PushbackReader FileNotFoundException]))
 
@@ -14,30 +12,20 @@ namely a vector or list of file names or directory paths."
   (let [stream (PushbackReader. (FileReader. file))]
     (read stream)))
 
-(defn recursive-files [dir]
-  (->> dir
-       fs/iterdir
-       (map (fn [[root _ files]]
-              (doall (map #(fs/join root %)
-                          (sort files))))))) ;; sort because of file-ordering bugs
-
 (defn manifest-files
   "return a sequence of files specified by the given manifest."
   [manifest-file]
   (->> (load-manifest manifest-file)
        (map (fn [filename]
-              (let [dir (.getParent manifest-file)
-                    file (path/find-file filename :root dir)]
-                (when (nil? file)
+              (let [base-dir (.getParent (io/file manifest-file))
+                    file (io/file base-dir filename)]
+                (when-not (.exists file)
                   (throw (FileNotFoundException. (str "Could not find " filename " from " manifest-file))))
-                (if (-> file io/file .isDirectory)
-                  (recursive-files file)
-                  file))))
-       doall
+                (file-seq file))))
        flatten
-       (map io/file)
        (remove #(or (re-matches #".*\.swp$" (.getCanonicalPath %))
-                    (re-matches #"/.*\.#.*$" (.getCanonicalPath %))))))
+                    (re-matches #"/.*\.#.*$" (.getCanonicalPath %))
+                    (.isDirectory %)))))
 
 (defn compile-manifest [file]
   (let [builder (string-builder)

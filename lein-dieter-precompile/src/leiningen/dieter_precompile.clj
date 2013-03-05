@@ -3,30 +3,19 @@
   (:require [clojure.string :as string]
             [leiningen.core.eval :as eval]))
 
-(defn ns-resolve-string
-  "Given a string "
-  [ns-string]
-  `(let [pair# (map symbol (string/split ~ns-string #"/"))
-         ns# (first pair#)
-         sym# (second pair#)]
-     (require ns#)
-     @(ns-resolve ns# sym#)))
+(defn eval-opt [project opt]
+  (eval/eval-in-project project `(var-get (resolve (symbol ~opt))) `(require (symbol (namespace (symbol ~opt))))))
 
-(defn resolve-dieter-options [opt]
-  `(let [opt# ~opt]
-     (cond
-      (map? opt#) opt#
-      (string? opt#) (let [val# ~(ns-resolve-string opt)]
-                       (cond
-                        (map? val#) val#
-                        (fn? val#) (val#))))))
+(defn resolve-dieter-options [project opt]
+  (cond
+   (map? opt) opt
+   (string? opt) (eval-opt project opt)))
 
 (defn dieter-precompile
   [project]
-  (let [options (:dieter-options project)
-        options (->> project
-                     :dieter-options
-                     resolve-dieter-options)]
+  (let [option-param (:dieter-options project)
+        options (resolve-dieter-options project option-param)]
+    (println (nil? options))
     (println "options=" options)
     (eval/eval-in-project
      project

@@ -62,6 +62,7 @@
   (settings/with-options options
     (if (settings/production?)
       (-> app
+          (precompile/load-precompiled-assets)
           (wrap-file (settings/cache-root))
           (asset-builder options)
           (wrap-file-expires-never (settings/cache-root))

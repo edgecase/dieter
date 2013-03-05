@@ -37,7 +37,7 @@ Contents can be a String, StringBuilder, or byte[]"))
       (let [new-content (f file)]
         (dosync
          (swap! memoized assoc filename {:content new-content
-                                         :timestamp (time/now)}))
+                                         :timestamp current-timestamp}))
         new-content))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;

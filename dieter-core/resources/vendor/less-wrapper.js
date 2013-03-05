@@ -30,9 +30,9 @@ function loadStyleSheet(sheet, callback, reload, remaining) {
     });
 }
 
-function compileLess(input, name) {
+function compileLess(input, name, shouldCompress) {
     var output,
-        compress = false,
+        compress = shouldCompress,
         i;
 
     startingName = name;
@@ -49,9 +49,17 @@ function compileLess(input, name) {
         var parser = new less.Parser();
         parser.parse(input, function (e, root) {
             if (e) { throw(e); }
-            result = root.toCSS();
+          result = root.toCSS({compress: compress});
         });
     }
     catch(e) { throw format_error(e); }
     return result;
 };
+
+function compileLessNoCompress(input, name) {
+  return compileLess(input, name, false);
+}
+
+function compileLessCompress(input, name) {
+  return compileLess(input, name, true);
+}

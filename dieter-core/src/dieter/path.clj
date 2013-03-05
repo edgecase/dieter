@@ -2,8 +2,7 @@
   (:use dieter.settings)
   (:require [clojure.string :as cstr]
             [clojure.java.io :as io]
-            [dieter.settings :as settings]
-            [fs])
+            [dieter.settings :as settings])
   (:import [java.security MessageDigest]))
 
 ;;;; TODO
@@ -22,13 +21,6 @@
 
 (defn make-relative-to-cache [path]
   (cstr/replace-first path (re-pattern (str ".*" (settings/cache-root))) ""))
-
-
-(defn relative-path [root file]
-  (let [absroot (fs/abspath root)
-        absfile (fs/abspath file)
-        root-length (count absroot)]
-    (.substring absfile (inc root-length))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

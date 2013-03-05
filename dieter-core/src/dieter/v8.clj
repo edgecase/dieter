@@ -1,14 +1,13 @@
 (ns dieter.v8
   (:require [v8.core :as v8]
             [clojure.java.io :as io]
-            [fs]
             [clojure.string :as str]
             [dieter.settings :as settings]))
 
 (defn load-vendor [files]
   (apply str (map (fn [f]
                     (->> f
-                         (fs/join "vendor")
+                         (str "vendor/")
                          io/resource
                          io/reader
                          line-seq

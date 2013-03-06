@@ -6,6 +6,8 @@
 
 (deftest test-preprocess-coffeescript
   (h/with-both-engines
+   (testing "we have a chance to succeed"
+     (is (.exists (io/file "test/fixtures/assets/javascripts/test.js.coffee"))))
     (testing "basic coffee file"
       (is (= "(function() {\n\n  (function(param) {\n    return alert(\"x\");\n  });\n\n}).call(this);\n"
              (cs/preprocess-coffeescript

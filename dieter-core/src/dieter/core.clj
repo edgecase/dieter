@@ -62,7 +62,6 @@
   (settings/with-options options
     (if (settings/production?)
       (-> app
-          (precompile/load-precompiled-assets)
           (wrap-file (settings/cache-root))
           (asset-builder options)
           (wrap-file-expires-never (settings/cache-root))
@@ -81,7 +80,7 @@
 ex. (link-to-asset \"javascripts/app.js\") => \"/assets/javascripts/app-12345678901234567890123456789012.js\""
   (settings/with-options options
     (if (path/find-asset adrf)
-      (-> adrf path/adrf->uri cache/cache-busting-uri))))
+      (cache/cache-busting-uri (path/adrf->uri adrf)))))
 
 
 (defn precompile [options] ;; lein dieter-precompile uses this name

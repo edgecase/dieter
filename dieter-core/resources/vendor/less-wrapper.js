@@ -49,7 +49,7 @@ function compileLess(input, name, shouldCompress) {
         var parser = new less.Parser();
         parser.parse(input, function (e, root) {
             if (e) { throw(e); }
-          result = root.toCSS({compress: compress});
+            result = root.toCSS({compress: compress});
         });
     }
     catch(e) { throw format_error(e); }

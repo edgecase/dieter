@@ -57,7 +57,7 @@ In order to include links to your assets you may use the link-to-asset function.
 ## Configuration Options
 
     :engine     :rhino                  ; defaults to :rhino; :v8 is much much faster
-    :compress   false                   ; minify using Google Closure Compiler
+    :compress   false                   ; minify using Google Closure Compiler & Less compression
     :asset-roots ["resources"]          ; must have a folder called 'assets'. Searched for assets in the order listed.
     :cache-root "resources/asset-cache" ; compiled assets are cached here
     :cache-mode :development            ; or :production. :development disables cacheing

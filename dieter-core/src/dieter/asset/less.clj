@@ -12,7 +12,7 @@
                 (if (-> settings/*settings* :engine (= :rhino))
                   ["less-rhino-wrapper.js" "less-wrapper.js" "less-rhino-1.3.3.js"]
                   ["less-wrapper.js" "less-rhino-1.3.3.js"])
-                "compileLess"
+                (if (settings/compress?) "compileLessCompress" "compileLessNoCompress")
                 file))
 
 (defrecord Less [file]

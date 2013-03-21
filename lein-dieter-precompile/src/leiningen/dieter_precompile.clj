@@ -3,30 +3,23 @@
   (:require [clojure.string :as string]
             [leiningen.core.eval :as eval]))
 
-(defn ns-resolve-string
-  "Given a string "
-  [ns-string]
-  `(let [pair# (map symbol (string/split ~ns-string #"/"))
-         ns# (first pair#)
-         sym# (second pair#)]
-     (require ns#)
-     @(ns-resolve ns# sym#)))
+(defn eval-opt [project opt result-file]
+  (last [(eval/eval-in-project
+   project
+   `(with-open [w# (java.io.FileWriter. ~result-file)] (print-dup (var-get (resolve (symbol ~opt))) w#))
+   `(require (symbol (namespace (symbol ~opt))))) :from-file]))
 
-(defn resolve-dieter-options [opt]
-  `(let [opt# ~opt]
-     (cond
-      (map? opt#) opt#
-      (string? opt#) (let [val# ~(ns-resolve-string opt)]
-                       (cond
-                        (map? val#) val#
-                        (fn? val#) (val#))))))
+(defn resolve-dieter-options [project opt result-file]
+  (cond
+   (map? opt) opt
+   (string? opt) (eval-opt project opt (.getAbsolutePath result-file))))
 
 (defn dieter-precompile
   [project]
-  (let [options (:dieter-options project)
-        options (->> project
-                     :dieter-options
-                     resolve-dieter-options)]
+  (let [result-file (java.io.File/createTempFile "lein-dieter" "options")
+        option-param (:dieter-options project)
+        options-result (resolve-dieter-options project option-param result-file)
+        options (if (= options-result :from-file) (read-string (slurp result-file)) options-result)]
     (println "options=" options)
     (eval/eval-in-project
      project

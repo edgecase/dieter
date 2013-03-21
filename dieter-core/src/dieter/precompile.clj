@@ -15,6 +15,7 @@
   "Load any assets already in the cache directory"
   []
   (->> (settings/cache-root)
+       io/file
        file-seq
        flatten
        (remove #(.isDirectory %))

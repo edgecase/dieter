@@ -51,7 +51,8 @@ Dieter would look for base.js in the same directory, and then concatenate each f
 In order to include links to your assets you may use the link-to-asset function.
 
 ```clojure
-(link-to-asset "javascripts/app.js" config-options)
+(link-to-asset "stylesheets/reset.css" config-options)
+(link-to-asset "javascripts/app.js.dieter" config-options)
 ```
 
 ## Configuration Options

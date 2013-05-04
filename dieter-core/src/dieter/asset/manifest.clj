@@ -23,8 +23,9 @@ namely a vector or list of file names or directory paths."
                   (throw (FileNotFoundException. (str "Could not find " filename " from " manifest-file))))
                 (file-seq file))))
        flatten
-       (remove #(or (re-matches #".*\.swp$" (.getCanonicalPath %))
-                    (re-matches #"/.*\.#.*$" (.getCanonicalPath %))
+       (remove #(or (re-matches #".*\.swp$" (.getCanonicalPath %)) ; vim swap files
+                    (re-matches #"/.*\.#.*$" (.getCanonicalPath %)) ; emacs swap files
+                    (re-matches #".*/\.DS_Store/.*" (.getCanonicalPath %)) ; OSX
                     (.isDirectory %)))))
 
 (defn compile-manifest [file]

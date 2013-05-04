@@ -42,14 +42,20 @@
 (deftest test-emacs-file
   (let [manifest (io/file "test/fixtures/assets/javascripts/emacs_test/emacs.js.dieter")
         files (manifest/manifest-files manifest)]
-    (is (not (h/contains-file?
-              files "test/fixtures/assets/javascripts/emacs_test/nested/.#testfile.coffee")))))
+    (is (not (h/contains-file-containing? files ".#")))
+    (is (h/contains-file-containing? files "nested/testfile"))))
 
 (deftest test-vim-file
   (let [manifest (io/file "test/fixtures/assets/javascripts/vim_test/vim.js.dieter")
         files (manifest/manifest-files manifest)]
-    (is (not (h/contains-file?
-              files "test/fixtures/assets/javascripts/vim_test/nested/.testfile.coffee.swp")))))
+    (is (not (h/contains-file-containing? files ".testfile.coffee.swp")))
+    (is (h/contains-file-containing? files "nested/testfile.coffee"))))
+
+(deftest test-dsstore-file
+  (let [manifest (io/file "test/fixtures/assets/javascripts/dsstore_test/dsstore.js.dieter")
+        files (manifest/manifest-files manifest)]
+    (is (not (h/contains-file-containing? files ".DS_Store")))
+    (is (h/contains-file-containing? files "nested/existing"))))
 
 (deftest test-nested-directories
   (let [manifest (io/file "test/fixtures/assets/javascripts/nested-dirs.js.dieter")

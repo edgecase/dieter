@@ -3,7 +3,17 @@
             [clojure.java.io :as io]))
 
 (defn contains-file? [seq filename]
-  (<= 1 (count (filter #(= (.getCanonicalPath %) (-> filename io/file .getCanonicalPath)) seq))))
+  (->> seq
+       (filter #(= (.getCanonicalPath %)
+                   (-> filename io/file .getCanonicalPath)))
+       count
+       pos?))
+
+(defn contains-file-containing? [seq substr]
+  (->> seq
+       (filter #(.contains (-> % .getCanonicalPath) substr))
+       count
+       pos?))
 
 (defn has-text?
   "returns true if expected occurs in text exactly n times (one or more times if not specified)"

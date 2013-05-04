@@ -1,2 +1,3 @@
 /dieter-core/target/
 /lein-dieter-precompile/target/
+/dieter-core/.lein-repl-history

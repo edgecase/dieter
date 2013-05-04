@@ -24,8 +24,8 @@ namely a vector or list of file names or directory paths."
                 (file-seq file))))
        flatten
        (remove #(or (re-matches #".*\.swp$" (.getCanonicalPath %)) ; vim swap files
-                    (re-matches #"/.*\.#.*$" (.getCanonicalPath %)) ; emacs swap files
-                    (re-matches #".*/\.DS_Store/.*" (.getCanonicalPath %)) ; OSX
+                    (re-matches #".*/\.#[^\/]+$" (.getCanonicalPath %)) ; emacs swap files
+                    (re-matches #".*/\.DS_Store$" (.getCanonicalPath %)) ; OSX
                     (.isDirectory %)))))
 
 (defn compile-manifest [file]

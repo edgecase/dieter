@@ -71,8 +71,7 @@
           (wrap-file (settings/cache-root))
           (asset-builder options)
           (wrap-file-info known-mime-types)
-          (wrap-dieter-mime-types)
-          (wrap-file-info known-mime-types)))))
+          (wrap-dieter-mime-types)))))
 
 
 (defn link-to-asset [adrf & [options]]

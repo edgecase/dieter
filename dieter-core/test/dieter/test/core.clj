@@ -4,7 +4,8 @@
             [dieter.cache :as cache]
             [dieter.test.helpers :as h]
             [clojure.java.io :as io])
-  (:use clojure.test))
+  (:use clojure.test
+        ring.mock.request))
 
 (deftest test-link-to-asset
   (testing "development mode"
@@ -77,3 +78,32 @@
         (is (= "/assets/images/dieter-102c15cd1a2dfbe24b8a5f12f2671fc8.jpeg"
                (builder {:uri "/assets/images/dieter.jpeg"})))
         (.delete (io/file "test/fixtures/asset-cache/assets/images/dieter-102c15cd1a2dfbe24b8a5f12f2671fc8.jpeg"))))))
+
+(deftest test-asset-pipeline
+  (let [app (fn [req] (:uri req))
+        pipeline (fn [opts] (core/asset-pipeline app opts))
+        mime-req (fn [opts uri] ((((pipeline opts) (request :get uri)) :headers) "Content-Type"))]
+    (testing "development mode"
+      (let [opts {:cache-mode :development
+                  :asset-roots ["test/fixtures" "test/fixtures/more_assets"]
+                  :cache-root "test/fixtures/asset-cache"}]
+        (testing "mime types"
+          (reset! cache/cached-uris {})
+          (is (= "text/javascript" (mime-req opts "/assets/javascripts/app.js")))
+          (is (= "image/jpeg"      (mime-req opts "/assets/images/dieter.jpeg")))
+          (is (= "text/css"        (mime-req opts "/assets/stylesheets/main.css")))
+          (is (= "text/css"        (mime-req opts "/assets/stylesheets/basic.less")))
+          (is (= "text/javascript" (mime-req opts "/assets/javascripts/manifest.js.dieter")))
+          )))
+    (testing "production mode"
+      (let [opts {:cache-mode :production
+                  :asset-roots ["test/fixtures" "test/fixtures/more_assets"]
+                  :cache-root "test/fixtures/asset-cache"}]
+        (testing "mime types"
+          (reset! cache/cached-uris {})
+          (is (= "text/javascript" (mime-req opts "/assets/javascripts/app.js")))
+          (is (= "image/jpeg"      (mime-req opts "/assets/images/dieter.jpeg")))
+          (is (= "text/css"        (mime-req opts "/assets/stylesheets/main.css")))
+          (is (= "text/css"        (mime-req opts "/assets/stylesheets/basic.less")))
+          (is (= "text/javascript" (mime-req opts "/assets/javascripts/manifest.js.dieter")))
+          )))))

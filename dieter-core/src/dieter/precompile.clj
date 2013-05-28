@@ -15,6 +15,7 @@
   "Load any assets already in the cache directory"
   []
   (->> (settings/cache-root)
+       (io/file)
        file-seq
        flatten
        (remove #(.isDirectory %))
@@ -38,8 +39,7 @@
        (remove #(= directory (.getPath %1)))
        reverse
        (map #(.delete %1))
-       dorun
-   ))
+       dorun))
 
 (defn precompile [options]
   (settings/with-options options
@@ -50,9 +50,9 @@
              (find-and-cache-asset)))
       (doseq [asset-root (settings/asset-roots)]
         (->>
-         (io/file asset-root "assets")         
-         file-seq 
-         flatten         
+         (io/file asset-root "assets")
+         file-seq
+         flatten
          (remove #(.isDirectory %))
          (map (fn [filename]
                 (try (->> filename
@@ -61,7 +61,5 @@
                      (find-and-cache-asset))
                 (print ".")
                 (catch Exception e
-                  (println "Not built" filename)))
-           
-           ))
+                  (println "Not built" filename)))))
          dorun)))))

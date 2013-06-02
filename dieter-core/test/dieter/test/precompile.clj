@@ -15,9 +15,10 @@
                  :cache-root "test/precompile-cache"
                  :cache-mode :production
                  :precompiles ["javascripts/app.js"]}]
-    (precompile/precompile options)
+    (swap! cache/cached-uris (constantly {})) ; clear first
     (settings/with-options options
-      (let [old @cache/cached-uris]
-        (swap! cache/cached-uris (constantly {}))
-        (precompile/load-precompiled-assets)
-        (is (= old @cache/cached-uris))))))
+      (precompile/precompile options)
+      (precompile/load-precompiled-assets)
+      (is (= (keys @cache/cached-uris)
+             (map #(str "/assets/" %)
+                  (:precompiles options)))))))

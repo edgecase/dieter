@@ -21,7 +21,9 @@ namely a vector or list of file names or directory paths."
                     file (io/file base-dir filename)]
                 (when-not (.exists file)
                   (throw (FileNotFoundException. (str "Could not find " filename " from " manifest-file))))
-                (file-seq file))))
+                (->> file
+                     file-seq
+                     (sort-by #(.getCanonicalPath %))))))
        flatten
        (remove #(or (re-matches #".*\.swp$" (.getCanonicalPath %)) ; vim swap files
                     (re-matches #".*/\.#[^\/]+$" (.getCanonicalPath %)) ; emacs swap files

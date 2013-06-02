@@ -18,6 +18,21 @@
     (testing "load javascript file with same name as directory to be loaded"
       (is (h/contains-file? files "test/fixtures/assets/javascripts/lib.js")))))
 
+(deftest test-directories-are-sorted
+  (let [path "test/fixtures/assets/javascripts/sorted/"
+        manifest (str path "manifest.js.dieter")
+        subdir (str path "subdir")
+        files (manifest/manifest-files (io/file manifest))]
+    ;; To ensure this test is actually effective, we added enough files to have
+    ;; a high degree of certainty that its sorted on Linux. We also chose files
+    ;; which sort differently on than in clojure (OSX sorts alphabetically, but
+    ;; is case-insensitive, so below E.js will be in the middle of the list on
+    ;; OSX, but at the front when sorted)
+    (is (= (map #(.getName %) files)
+           (seq ["E.js" "a.js" "b.js" "c.js" "d.js" "f.js"
+                 "g.js" "h.js" "i.js" "j.js" "k.js" "l.js"
+                 "m.js" "n.js"])))))
+
 (deftest test-dieter-asset
   (let [manifest (asset/make-asset (io/file
                                     "test/fixtures/assets/javascripts/manifest.js.dieter"))

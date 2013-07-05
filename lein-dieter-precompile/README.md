@@ -4,10 +4,10 @@ A leiningen plugin for precompiling assets using Dieter, similar to Rails' `rake
 
 ## Installation
 
-In `:dev-dependencies`, add:
+In `:plugins`, add:
 
 ```clojure
-[lein-dieter-precompile "0.1"]
+[lein-dieter-precompile "0.2.0"]
 ```
 
 ## Usage

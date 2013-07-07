@@ -2,3 +2,4 @@
 /lein-dieter-precompile/target/
 /dieter-core/.lein-repl-history
 /dieter-core/test/precompile-cache/
+/dieter-core/pom.xml.asc

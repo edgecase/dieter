@@ -56,7 +56,7 @@
          (remove #(.isDirectory %))
          (map (fn [filename]
                 (try (->> filename
-                     (relative-path asset-root)
+                     (relative-path (str asset-root "/assets"))
                      (str "./")
                      (find-and-cache-asset))
                 (print ".")

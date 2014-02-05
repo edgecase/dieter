@@ -1,8 +1,7 @@
 (ns dieter.jsengine
   (:require [dieter.settings :as settings]
             [dieter.pools :as pools]
-            [dieter.rhino :as rhino]
-            [dieter.v8 :as v8]))
+            [dieter.rhino :as rhino]))
 
 
 ;; TODO: take an asset to avoid slurping here
@@ -16,8 +15,12 @@
               (= engine :rhino))
         (rhino/with-scope pool preloads
           (rhino/call fn-name args))
-        (v8/with-scope pool preloads
-          (v8/call fn-name args))))
+        (do
+          (require 'dieter.v8) ;v8 is not always available, load it at the last possible moment
+          (let [ws   (ns-resolve 'dieter.v8 (symbol "with-scope"))
+                call (ns-resolve 'dieter.v8 (symbol "call"))]
+            (ws pool preloads
+              (call fn-name args))))))
     (catch Exception e
       (let [ste (StackTraceElement. "jsengine"
                                     "compileHamlCoffee" (.getPath file) -1)

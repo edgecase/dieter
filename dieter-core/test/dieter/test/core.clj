@@ -57,8 +57,12 @@
 (deftest test-asset-builder
   (settings/with-options {:asset-root "test/fixtures"
                           :cache-root "test/fixtures/asset-cache"}
-    (let [app (fn [req] (:uri req))
+    (let [app (fn [req] (or (:path-info req) (:uri req))) ; see file-request and path-info in ring
           builder (core/asset-builder app)]
+      (testing "plain path, with a server that supplies :path-info (for example: immutant)"
+        (reset! cache/cached-uris {})
+          (is (= "/assets/javascripts/app-0dbd0f18020cf56c28846c40b56b5baa.js"
+               (builder {:path-info "/assets/javascripts/app.js" :uri "/assets/javascripts/app.js"}))))
       (testing "plain file paths"
         (reset! cache/cached-uris {})
         (is (= "/assets/javascripts/app-0dbd0f18020cf56c28846c40b56b5baa.js"

@@ -39,7 +39,7 @@
                                        find-and-cache-asset)]
             (let [new-uri (path/make-relative-to-cache cached-filename)]
               (cache/add-cached-uri uri new-uri)
-              (app (assoc req :uri new-uri)))
+              (app (assoc req :uri new-uri :path-info new-uri)))
             (app req))
           (app req))))))
 

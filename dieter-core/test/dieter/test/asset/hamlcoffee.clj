@@ -16,9 +16,10 @@
 (deftest test-preprocess-hamlcoffee
   (h/with-both-engines
     (testing "basic hamlc file"
-      (is (= (wrap "basic"  "<!DOCTYPE html>\\n<html>\\n  <head>\\n    <title>\\n      Title\\n    </title>\\n  </head>\\n  <body>\\n    <h1>\\n      Header\\n    </h1>\\n  </body>\\n</html>")
-             (hc/preprocess-hamlcoffee
-              (io/file "test/fixtures/assets/javascripts/basic.hamlc")))))))
+      (let [expected (slurp (io/file "test/fixtures/assets/javascripts/basic.hamlc.js"))]
+      (is (= (.trim expected)
+             (.trim (hc/preprocess-hamlcoffee
+              (io/file "test/fixtures/assets/javascripts/basic.hamlc")))))))))
 
 (deftest test-caching
   (h/with-both-engines

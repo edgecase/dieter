@@ -3,9 +3,5 @@ function formatError(e, filename) {
 }
 
 function compileCoffeeScript(input, filename) {
-  try {
-      return CoffeeScript.compile(input);
-  } catch (e) {
-    throw formatError(e, filename);
-  }
+  return CoffeeScript.compile(input, {filename: filename});
 }

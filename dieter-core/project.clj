@@ -10,6 +10,7 @@
                  [clj-v8 "0.1.4"]
                  [clj-v8-native "0.1.4"]
                  [org.mozilla/rhino "1.7R4"]
+                 [org.jruby/jruby-complete "1.7.3"]
                  [org.clojure/clojure "1.4.0"]]
   :dev-dependencies [[org.clojure/clojure "1.4.0"]]
   :profiles {:dev {:dependencies [[ring-mock "0.1.4"]]}})

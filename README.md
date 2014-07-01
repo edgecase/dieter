@@ -8,7 +8,7 @@ Dieter provides you with a ring middleware which will compile certain
 static assets. Currently it supports concatenating javascript and CSS
 files, compiling
 [LESS CSS](http://lesscss.org/),
-[CoffeeScript](http://jashkenas.github.com/coffee-script/) and
+[CoffeeScript](http://coffeescript.org) and
 [Haml-coffee](https://github.com/9elements/haml-coffee).
 In addition it minifies javascript using the Google Closure compiler.
 
